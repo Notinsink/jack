@@ -1,60 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JackpotJunction</title>
-    <style>
-        /* CSS code here */
-        body {
-            background-color: #000;
-            font-family: Arial, sans-serif;
-        }
-       .logo {
-            font-size: 48px;
-            color: #ffd700;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-       .game-icons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-       .game-icon {
-            margin: 20px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: #ffd700;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-       .game-icon:hover {
-            background-color: #fff;
-            color: #ffd700;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jackpot Casino</title>
+  <style>
+    /* CSS Styles */
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #222, #000);
+      color: #fff;
+      text-align: center;
+    }
+    header {
+      background-color: #111;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: gold;
+      text-shadow: 0 0 10px #ffd700;
+    }
+    nav {
+      margin: 20px 0;
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: gold;
+      text-shadow: 0 0 5px #ffb700;
+    }
+    nav a:hover {
+      color: white;
+      text-shadow: 0 0 10px white;
+    }
+    .game-section {
+      padding: 20px;
+    }
+    .game-section h2 {
+      color: #ffd700;
+    }
+    footer {
+      background-color: #111;
+      padding: 10px 0;
+      color: #bbb;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo">JackpotJunction</div>
-    </header>
-    <main>
-        <div class="game-icons">
-            <div class="game-icon" onclick="location.href='kano.html'">Kano</div>
-            <div class="game-icon" onclick="location.href='roulette.html'">Roulette</div>
-            <div class="game-icon" onclick="location.href='slot.html'">Slot</div>
-            <div class="game-icon" onclick="location.href='craps.html'">Craps</div>
-            <div class="game-icon" onclick="location.href='wheel.html'">Wheel</div>
-        </div>
-    </main>
-    <script>
-        // JavaScript code here
-        console.log("Welcome to JackpotJunction!");
-    </script>
+  <header>
+    <h1>Welcome to Jackpot Casino</h1>
+  </header>
+  <nav>
+    <a href="craps.html">Craps</a>
+    <a href="kano.html">Kano</a>
+    <a href="roulette.html">Roulette</a>
+    <a href="slot.html">Slot Machine</a>
+    <a href="wheel.html">Spin the Wheel</a>
+  </nav>
+  <div class="game-section">
+    <h2>Play and Win Big!</h2>
+    <p>Choose your favorite game from the navigation menu to start playing.</p>
+  </div>
+  <footer>
+    <p>&copy; 2024 Jackpot Casino. All rights reserved.</p>
+  </footer>
+  <script>
+    // JavaScript for interactivity
+    document.querySelectorAll("nav a").forEach(link => {
+      link.addEventListener("mouseover", () => {
+        link.style.fontSize = "1.5rem";
+      });
+      link.addEventListener("mouseout", () => {
+        link.style.fontSize = "1.2rem";
+      });
+    });
+  </script>
 </body>
 </html>
