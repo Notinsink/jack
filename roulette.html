@@ -139,4 +139,20 @@
             number.style.transform = `rotate(${rotationAngle}deg)`;
             const span = document.createElement("rotate]");
             
-            
+                        const span = document.createElement("span");
+            span.textContent = i === 0 ? "0" : i;
+            number.appendChild(span);
+            numbersContainer.appendChild(number);
+          }
+        </script>
+      </div>
+    </div>
+    <div class="gold-ball"></div>
+    <button class="spin-btn" onclick="spinWheel()">Spin</button>
+  </div>
+
+  <script>
+    function spinWheel() {
+      const wheel = document.querySelector('.roulette-wheel');
+      const randomAngle = Math.random() * 360; // Random stop angle
+      wheel.style.transition = "transform 3
