@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kano Casino Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .grid button {
+            background-color: #34495e;
+            color: #ecf0f1;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .grid button.selected {
+            background-color: #27ae60;
+        }
+        .grid button.matched {
+            background-color: #e74c3c;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kano Casino Game</h1>
+    <p>Select up to 10 numbers and click "Draw Numbers" to play!</p>
+    <div class="grid" id="numberGrid"></div>
+    <div class="controls">
+        <button id="drawButton">Draw Numbers</button>
+        <button id="resetButton">Reset</button>
+    </div>
+    <div class="result" id="result"></div>
+
+    <script>
+        const grid = document.getElementById("numberGrid");
+        const resultDiv = document.getElementById("result");
+        const drawButton = document.getElementById("drawButton");
+        const resetButton = document.getElementById("resetButton");
+
+        const MAX_SELECTION = 10;
+        const TOTAL_NUMBERS = 50;
+        let selectedNumbers = [];
+
+        // Create grid of numbers
+        for (let i = 1; i <= TOTAL_NUMBERS; i++) {
+            const button = document.createElement("button");
+            button.textContent = i;
+            button.addEventListener("click", () => toggleSelection(i, button));
+            grid.appendChild(button);
+        }
+
+        function toggleSelection(number, button) {
+            if (selectedNumbers.includes(number)) {
+                // Deselect number
+                selectedNumbers = selectedNumbers.filter((n) => n !== number);
+                button.classList.remove("selected");
+            } else if (selectedNumbers.length < MAX_SELECTION) {
+                // Select number
+                selectedNumbers.push(number);
+                button.classList.add("selected");
+            }
+        }
+
+        function drawNumbers() {
+            if (selectedNumbers.length === 0) {
+                alert("Please select at least one number to play!");
+                return;
+            }
+
+            // Generate 10 random numbers
+            const drawnNumbers = [];
+            while (drawnNumbers.length < 10) {
+                const randomNum = Math.floor(Math.random() * TOTAL_NUMBERS) + 1;
+                if (!drawnNumbers.includes(randomNum)) {
+                    drawnNumbers.push(randomNum);
+                }
+            }
+
+            // Highlight matched numbers and show result
+            let matches = 0;
+            Array.from(grid.children).forEach((button) => {
+                const number = parseInt(button.textContent, 10);
+                if (drawnNumbers.includes(number)) {
+                    button.classList.add("matched");
+                }
+                if (selectedNumbers.includes(number) && drawnNumbers.includes(number)) {
+                    matches++;
+                }
+            });
+
+            resultDiv.innerHTML = `
+                <p>Drawn Numbers: ${drawnNumbers.join(", ")}</p>
+                <p>You matched ${matches} ${matches === 1 ? "number" : "numbers"}!</p>
+            `;
+        }
+
+        function resetGame() {
+            selectedNumbers = [];
+            Array.from(grid.children).forEach((button) => {
+                button.classList.remove("selected", "matched");
+            });
+            resultDiv.innerHTML = "";
+        }
+
+        drawButton.addEventListener("click", drawNumbers);
+        resetButton.addEventListener("click", resetGame);
+    </script>
+</body>
+</html>
