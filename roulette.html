@@ -3,189 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette Wheel with Ball Animation and Sound</title>
+  <title>Spin & Win Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #222;
-      color: white;
-    }
-
-    .roulette-container {
       text-align: center;
-    }
-
-    canvas {
-      border-radius: 50%;
-      background-color: #fff;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
+      background: #282c34;
       color: white;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        #f00 0deg 45deg,
+        #0f0 45deg 90deg,
+        #00f 90deg 135deg,
+        #ff0 135deg 180deg,
+        #f0f 180deg 225deg,
+        #0ff 225deg 270deg,
+        #fff 270deg 315deg,
+        #aaa 315deg 360deg
+      );
+      border: 5px solid white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transform: rotate(0deg);
+      transition: transform 3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 40px;
+      background: gold;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+
+    .button {
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #008cba;
       border: none;
       border-radius: 5px;
+      color: white;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .button:hover {
+      background: #005f6b;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
-  <div class="roulette-container">
-    <canvas id="rouletteCanvas" width="500" height="500"></canvas>
-    <button id="spinButton">Spin</button>
-    <p id="result" style="margin-top: 20px; font-size: 18px;"></p>
+  <h1>Spin & Win!</h1>
+  <div class="wheel-container">
+    <div class="pointer"></div>
+    <div class="wheel"></div>
   </div>
-  <audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
-  <script>
-    const canvas = document.getElementById('rouletteCanvas');
-    const ctx = canvas.getContext('2d');
-    const spinButton = document.getElementById('spinButton');
-    const resultDisplay = document.getElementById('result');
-    const spinSound = document.getElementById('spinSound');
+  <button class="button" onclick="spin()">Spin the Wheel</button>
+  <div class="result" id="result"></div>
 
+  <script>
+    const wheel = document.querySelector('.wheel');
+    const result = document.getElementById('result');
     const segments = [
-      { number: '0', color: 'green' },
-      { number: '32', color: 'red' },
-      { number: '15', color: 'black' },
-      { number: '19', color: 'red' },
-      { number: '4', color: 'black' },
-      { number: '21', color: 'red' },
-      { number: '2', color: 'black' },
-      { number: '25', color: 'red' },
-      { number: '17', color: 'black' },
-      { number: '34', color: 'red' },
-      { number: '6', color: 'black' },
-      { number: '27', color: 'red' },
-      { number: '13', color: 'black' },
-      { number: '36', color: 'red' },
-      { number: '11', color: 'black' },
-      { number: '30', color: 'red' },
-      { number: '8', color: 'black' },
-      { number: '23', color: 'red' },
-      { number: '10', color: 'black' },
-      { number: '5', color: 'red' },
-      { number: '24', color: 'black' },
-      { number: '16', color: 'red' },
-      { number: '33', color: 'black' },
-      { number: '1', color: 'red' },
-      { number: '20', color: 'black' },
-      { number: '14', color: 'red' },
-      { number: '31', color: 'black' },
-      { number: '9', color: 'red' },
-      { number: '22', color: 'black' },
-      { number: '18', color: 'red' },
-      { number: '29', color: 'black' },
-      { number: '7', color: 'red' },
-      { number: '28', color: 'black' },
-      { number: '12', color: 'red' },
-      { number: '35', color: 'black' },
-      { number: '3', color: 'red' },
-      { number: '26', color: 'black' },
-      { number: '00', color: 'green' },
+      "Win $10",
+      "Lose",
+      "Win $50",
+      "Try Again",
+      "Win $20",
+      "Bankrupt",
+      "Win $100",
+      "Lose"
     ];
 
-    const wheelRadius = canvas.width / 2;
-    const totalSegments = segments.length;
-    const segmentAngle = (2 * Math.PI) / totalSegments;
+    let isSpinning = false; // Flag to lock spinning while animation happens
+    let currentRotation = 0; // Track the current rotation to accumulate spins
 
-    let currentAngle = 0;
-    let spinSpeed = 0;
+    function spin() {
+      if (isSpinning) return; // Prevent overlapping spins
 
-    let ballAngle = 0;
-    let ballSpeed = 0;
-    let ballRadius = wheelRadius - 30;
+      isSpinning = true; // Lock the spin button
+      result.textContent = ""; // Clear the result
 
-    function drawWheel() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Generate random spin rotations
+      const randomRotation = Math.floor(Math.random() * 360) + 360 * 3; // At least 3 full spins
+      currentRotation += randomRotation; // Accumulate rotations for smooth spinning
 
-      // Draw wheel segments
-      segments.forEach((segment, index) => {
-        const startAngle = currentAngle + index * segmentAngle;
-        const endAngle = startAngle + segmentAngle;
+      // Animate the wheel spin
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-        // Draw segment
-        ctx.beginPath();
-        ctx.moveTo(wheelRadius, wheelRadius);
-        ctx.arc(wheelRadius, wheelRadius, wheelRadius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = segment.color;
-        ctx.fill();
-        ctx.stroke();
-
-        // Draw number
-        ctx.save();
-        ctx.translate(wheelRadius, wheelRadius);
-        ctx.rotate(startAngle + segmentAngle / 2);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText(segment.number, wheelRadius * 0.85, 5);
-        ctx.restore();
-      });
-
-      // Draw central hub
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
-      ctx.fillStyle = '#FFD700';
-      ctx.fill();
-
-      // Draw ball
-      const ballX = wheelRadius + ballRadius * Math.cos(ballAngle);
-      const ballY = wheelRadius + ballRadius * Math.sin(ballAngle);
-      ctx.beginPath();
-      ctx.arc(ballX, ballY, 10, 0, 2 * Math.PI);
-      ctx.fillStyle = '#000';
-      ctx.fill();
+      // Calculate the result
+      setTimeout(() => {
+        const angle = currentRotation % 360; // Get the stopping angle
+        const segmentIndex = Math.floor((360 - angle) / 45) % 8; // Calculate the result index
+        result.textContent = `Result: ${segments[segmentIndex]}`; // Display the result
+        isSpinning = false; // Unlock the spin button
+      }, 3000); // Match the CSS transition duration
     }
-
-    function spinWheel() {
-      if (spinSpeed > 0.005 || ballSpeed > 0.002) {
-        currentAngle += spinSpeed;
-        ballAngle -= ballSpeed;
-
-        spinSpeed *= 0.99; // Gradually slow down the wheel
-        ballSpeed *= 0.98; // Gradually slow down the ball
-
-        drawWheel();
-        requestAnimationFrame(spinWheel);
-      } else {
-        // Stop spinning sound
-        spinSound.pause();
-        spinSound.currentTime = 0;
-
-        // Determine the winning segment
-        const winningIndex = Math.floor(
-          ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
-        ) % totalSegments;
-        resultDisplay.textContent = `The ball landed on ${segments[winningIndex].number}!`;
-      }
-    }
-
-    spinButton.addEventListener('click', () => {
-      spinSpeed = Math.random() * 0.2 + 0.1;
-      ballSpeed = Math.random() * 0.3 + 0.15;
-
-      // Play spinning sound in loop
-      spinSound.loop = true;
-      spinSound.play();
-
-      resultDisplay.textContent = 'Spinning...';
-      spinWheel();
-    });
-
-    drawWheel();
   </script>
 </body>
 </html>
