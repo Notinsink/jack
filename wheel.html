@@ -99,28 +99,29 @@
       "Lose"
     ];
 
-    let spinning = false;
+    let isSpinning = false; // Flag to lock spinning while animation happens
+    let currentRotation = 0; // Track the current rotation to accumulate spins
 
     function spin() {
-      if (spinning) return;
+      if (isSpinning) return; // Prevent overlapping spins
 
-      spinning = true;
-      result.textContent = ""; // Clear result text
+      isSpinning = true; // Lock the spin button
+      result.textContent = ""; // Clear the result
 
-      // Random spin between 3 and 6 full rotations + a random stopping angle
-      const rotations = Math.floor(Math.random() * 3 + 3) * 360;
-      const randomAngle = Math.floor(Math.random() * 360);
-      const totalRotation = rotations + randomAngle;
+      // Generate random spin rotations
+      const randomRotation = Math.floor(Math.random() * 360) + 360 * 3; // At least 3 full spins
+      currentRotation += randomRotation; // Accumulate rotations for smooth spinning
 
-      // Rotate the wheel
-      wheel.style.transform = `rotate(${totalRotation}deg)`;
+      // Animate the wheel spin
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-      // Determine the result
+      // Calculate the result
       setTimeout(() => {
-        const segmentIndex = Math.floor(((360 - (totalRotation % 360)) / 45) % 8);
-        result.textContent = `Result: ${segments[segmentIndex]}`;
-        spinning = false;
-      }, 3000); // Match the CSS transition time
+        const angle = currentRotation % 360; // Get the stopping angle
+        const segmentIndex = Math.floor((360 - angle) / 45) % 8; // Calculate the result index
+        result.textContent = `Result: ${segments[segmentIndex]}`; // Display the result
+        isSpinning = false; // Unlock the spin button
+      }, 3000); // Match the CSS transition duration
     }
   </script>
 </body>
