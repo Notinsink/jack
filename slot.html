@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machine</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    .slot-machine {
+      display: inline-block;
+      background-color: #111;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+      border: 5px solid gold;
+    }
+
+    .rating {
+      font-size: 24px;
+      font-weight: bold;
+      color: gold;
+      margin-bottom: 30px;
+    }
+
+    .reels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .reel {
+      width: 90px;
+      height: 120px;
+      background-color: #222;
+      border: 3px solid gold;
+      font-size: 40px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    }
+
+    .button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 25px;
+      cursor: pointer;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    }
+
+    .button:hover {
+      background-color: #218838;
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    .message {
+      font-size: 20px;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="slot-machine">
+    <!-- Ratings Section -->
+    <div class="rating" id="rating">Rating: 0</div>
+    
+    <div class="reels">
+      <div class="reel" id="reel1">7</div>
+      <div class="reel" id="reel2">7</div>
+      <div class="reel" id="reel3">7</div>
+    </div>
+    <button class="button" onclick="spin()">SPIN</button>
+    <div class="result" id="result">Good Luck!</div>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    // Sound generation using Web Audio API
+    function playSpinSound() {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'triangle'; // Slot machine-style noise
+      oscillator.frequency.setValueAtTime(500, audioContext.currentTime); // Pitch
+      oscillator.frequency.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5); // Noise effect over time
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Volume control
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.5); // Length of sound
+    }
+
+    const symbols = ['7', '🍒', '🍋', '🍊', '🍓', '🍉', '💎', '🍀'];
+
+    function getRandomSymbol() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    function calculateRating(symbol1, symbol2, symbol3) {
+      if (symbol1 === symbol2 && symbol2 === symbol3) {
+        return 100; // High rating for matching symbols
+      } else if (symbol1 === symbol2 || symbol2 === symbol3 || symbol1 === symbol3) {
+        return 50; // Medium rating for two matching symbols
+      } else {
+        return 0; // Low rating for non-matching symbols
+      }
+    }
+
+    function spin() {
+      const reel1 = document.getElementById("reel1");
+      const reel2 = document.getElementById("reel2");
+      const reel3 = document.getElementById("reel3");
+      const result = document.getElementById("result");
+      const message = document.getElementById("message");
+      const rating = document.getElementById("rating");
+
+      // Play slot machine spin sound
+      playSpinSound();
+
+      // Spin the reels
+      const symbol1 = getRandomSymbol();
+      const symbol2 = getRandomSymbol();
+      const symbol3 = getRandomSymbol();
+
+      reel1.innerHTML = symbol1;
+      reel2.innerHTML = symbol2;
+      reel3.innerHTML = symbol3;
+
+      // Calculate and display rating
+      const spinRating = calculateRating(symbol1, symbol2, symbol3);
+      rating.innerHTML = `Rating: ${spinRating}`;
+
+      // Check for a win
+      if (symbol1 === symbol2 && symbol2 === symbol3) {
+        result.innerHTML = "YOU WIN!";
+        message.innerHTML = "🎉 Jackpot! 🎉";
+        message.style.color = "#FFD700"; // Gold
+      } else {
+        result.innerHTML = "TRY AGAIN!";
+        message.innerHTML = "Better luck next time!";
+        message.style.color = "#FF5733"; // Red
+      }
+    }
+  </script>
+
+</body>
+</html>
