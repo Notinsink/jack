@@ -3,156 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette Wheel</title>
+  <title>Roulette Wheel with Ball Animation and Sound</title>
   <style>
     body {
-      margin: 0;
-      background: #333;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
+      margin: 0;
+      background-color: #222;
+      color: white;
     }
 
     .roulette-container {
-      position: relative;
-      width: 100vmin;
-      height: 100vmin;
-      max-width: 500px;
-      max-height: 500px;
-    }
-
-    /* Roulette Wheel */
-    .roulette-wheel {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: conic-gradient(
-        red 0deg 10deg, black 10deg 20deg, 
-        red 20deg 30deg, black 30deg 40deg,
-        red 40deg 50deg, black 50deg 60deg, 
-        red 60deg 70deg, black 70deg 80deg,
-        red 80deg 90deg, black 90deg 100deg,
-        red 100deg 110deg, black 110deg 120deg,
-        red 120deg 130deg, black 130deg 140deg,
-        red 140deg 150deg, black 150deg 160deg,
-        green 160deg 170deg, black 170deg 180deg,
-        red 180deg 190deg, black 190deg 200deg,
-        red 200deg 210deg, black 210deg 220deg,
-        red 220deg 230deg, black 230deg 240deg,
-        green 240deg 250deg, black 250deg 260deg,
-        red 260deg 270deg, black 270deg 280deg,
-        red 280deg 290deg, black 290deg 300deg,
-        red 300deg 310deg, black 310deg 320deg,
-        red 320deg 330deg, black 330deg 340deg,
-        red 340deg 350deg, black 350deg 360deg
-      );
-      border: 5px solid #000;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Numbers */
-    .numbers {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      height: 90%;
-      border-radius: 50%;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      font-size: 14px;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-
-    .number {
-      position: absolute;
       text-align: center;
-      transform-origin: center;
     }
 
-    .number span {
-      display: block;
-      transform: translateY(-50px);
-    }
-
-    /* Ball */
-    .gold-ball {
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      background: radial-gradient(circle, #ffd700, #b8860b);
+    canvas {
       border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -150%);
-      z-index: 10;
-      animation: ball-bounce 2s infinite ease-in-out;
+      background-color: #fff;
     }
 
-    /* Spin Button */
-    .spin-btn {
-      position: absolute;
-      bottom: 5%;
-      left: 50%;
-      transform: translateX(-50%);
+    button {
+      margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
-      color: white;
       background-color: #007bff;
+      color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    /* Keyframes */
-    @keyframes ball-bounce {
-      0%, 100% {
-        transform: translate(-50%, -150%);
-      }
-      50% {
-        transform: translate(-50%, -180%);
-      }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <div class="roulette-container">
-    <div class="roulette-wheel">
-      <div class="numbers">
-        <!-- Dynamically Generated Numbers -->
-        <script>
-          const numbersContainer = document.querySelector('.numbers');
-          const totalNumbers = 37; // Includes "0" and "00"
-          const angleIncrement = 360 / totalNumbers;
-
-          for (let i = 0; i < totalNumbers; i++) {
-            const number = document.createElement('div');
-            const rotationAngle = i * angleIncrement;
-            number.className = 'number';
-            number.style.transform = `rotate(${rotationAngle}deg)`;
-            const span = document.createElement("rotate]");
-            
-                        const span = document.createElement("span");
-            span.textContent = i === 0 ? "0" : i;
-            number.appendChild(span);
-            numbersContainer.appendChild(number);
-          }
-        </script>
-      </div>
-    </div>
-    <div class="gold-ball"></div>
-    <button class="spin-btn" onclick="spinWheel()">Spin</button>
+    <canvas id="rouletteCanvas" width="500" height="500"></canvas>
+    <button id="spinButton">Spin</button>
+    <p id="result" style="margin-top: 20px; font-size: 18px;"></p>
   </div>
-
+  <audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
   <script>
+    const canvas = document.getElementById('rouletteCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinButton = document.getElementById('spinButton');
+    const resultDisplay = document.getElementById('result');
+    const spinSound = document.getElementById('spinSound');
+
+    const segments = [
+      { number: '0', color: 'green' },
+      { number: '32', color: 'red' },
+      { number: '15', color: 'black' },
+      { number: '19', color: 'red' },
+      { number: '4', color: 'black' },
+      { number: '21', color: 'red' },
+      { number: '2', color: 'black' },
+      { number: '25', color: 'red' },
+      { number: '17', color: 'black' },
+      { number: '34', color: 'red' },
+      { number: '6', color: 'black' },
+      { number: '27', color: 'red' },
+      { number: '13', color: 'black' },
+      { number: '36', color: 'red' },
+      { number: '11', color: 'black' },
+      { number: '30', color: 'red' },
+      { number: '8', color: 'black' },
+      { number: '23', color: 'red' },
+      { number: '10', color: 'black' },
+      { number: '5', color: 'red' },
+      { number: '24', color: 'black' },
+      { number: '16', color: 'red' },
+      { number: '33', color: 'black' },
+      { number: '1', color: 'red' },
+      { number: '20', color: 'black' },
+      { number: '14', color: 'red' },
+      { number: '31', color: 'black' },
+      { number: '9', color: 'red' },
+      { number: '22', color: 'black' },
+      { number: '18', color: 'red' },
+      { number: '29', color: 'black' },
+      { number: '7', color: 'red' },
+      { number: '28', color: 'black' },
+      { number: '12', color: 'red' },
+      { number: '35', color: 'black' },
+      { number: '3', color: 'red' },
+      { number: '26', color: 'black' },
+      { number: '00', color: 'green' },
+    ];
+
+    const wheelRadius = canvas.width / 2;
+    const totalSegments = segments.length;
+    const segmentAngle = (2 * Math.PI) / totalSegments;
+
+    let currentAngle = 0;
+    let spinSpeed = 0;
+
+    let ballAngle = 0;
+    let ballSpeed = 0;
+    let ballRadius = wheelRadius - 30;
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw wheel segments
+      segments.forEach((segment, index) => {
+        const startAngle = currentAngle + index * segmentAngle;
+        const endAngle = startAngle + segmentAngle;
+
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(wheelRadius, wheelRadius);
+        ctx.arc(wheelRadius, wheelRadius, wheelRadius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = segment.color;
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw number
+        ctx.save();
+        ctx.translate(wheelRadius, wheelRadius);
+        ctx.rotate(startAngle + segmentAngle / 2);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(segment.number, wheelRadius * 0.85, 5);
+        ctx.restore();
+      });
+
+      // Draw central hub
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
+      ctx.fillStyle = '#FFD700';
+      ctx.fill();
+
+      // Draw ball
+      const ballX = wheelRadius + ballRadius * Math.cos(ballAngle);
+      const ballY = wheelRadius + ballRadius * Math.sin(ballAngle);
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    }
+
     function spinWheel() {
-      const wheel = document.querySelector('.roulette-wheel');
-      const randomAngle = Math.random() * 360; // Random stop angle
-      wheel.style.transition = "transform 3
+      if (spinSpeed > 0.005 || ballSpeed > 0.002) {
+        currentAngle += spinSpeed;
+        ballAngle -= ballSpeed;
+
+        spinSpeed *= 0.99; // Gradually slow down the wheel
+        ballSpeed *= 0.98; // Gradually slow down the ball
+
+        drawWheel();
+        requestAnimationFrame(spinWheel);
+      } else {
+        // Stop spinning sound
+        spinSound.pause();
+        spinSound.currentTime = 0;
+
+        // Determine the winning segment
+        const winningIndex = Math.floor(
+          ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
+        ) % totalSegments;
+        resultDisplay.textContent = `The ball landed on ${segments[winningIndex].number}!`;
+      }
+    }
+
+    spinButton.addEventListener('click', () => {
+      spinSpeed = Math.random() * 0.2 + 0.1;
+      ballSpeed = Math.random() * 0.3 + 0.15;
+
+      // Play spinning sound in loop
+      spinSound.loop = true;
+      spinSound.play();
+
+      resultDisplay.textContent = 'Spinning...';
+      spinWheel();
+    });
+
+    drawWheel();
+  </script>
+</body>
+</html>
