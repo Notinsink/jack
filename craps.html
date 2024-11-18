@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exciting Craps Game</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 36px;
+      color: #ff5722;
+      text-shadow: 2px 2px 10px rgba(255, 87, 34, 0.5);
+    }
+
+    .dice-container {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+    }
+
+    .dice {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      font-size: 50px;
+      line-height: 100px;
+      background-color: #333;
+      color: #fff;
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(255, 87, 34, 0.7);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .dice:hover {
+      transform: rotate(15deg);
+      box-shadow: 0 0 40px rgba(255, 87, 34, 1);
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e64a19;
+      box-shadow: 0 0 25px rgba(255, 87, 34, 1);
+    }
+
+    #message {
+      font-size: 22px;
+      margin-top: 30px;
+      font-weight: bold;
+      color: #ffeb3b;
+    }
+
+    .dice-roll-animation {
+      animation: rollDice 1s infinite;
+    }
+
+    @keyframes rollDice {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(90deg); }
+      50% { transform: rotate(180deg); }
+      75% { transform: rotate(270deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Exciting Craps Game</h1>
+  <div class="dice-container">
+    <div class="dice" id="dice1">🎲</div>
+    <div class="dice" id="dice2">🎲</div>
+  </div>
+  <button id="rollDice">Roll Dice</button>
+  <p id="message">Click "Roll Dice" to start the game!</p>
+
+  <script>
+    // Dice Roll Function
+    function rollDice() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    // Game Logic
+    let point = null; // To track the "point" in Craps
+    const rollButton = document.getElementById('rollDice');
+    const messageElement = document.getElementById('message');
+    const dice1Element = document.getElementById('dice1');
+    const dice2Element = document.getElementById('dice2');
+
+    rollButton.addEventListener('click', () => {
+      dice1Element.classList.add('dice-roll-animation');
+      dice2Element.classList.add('dice-roll-animation');
+
+      setTimeout(() => {
+        const dice1 = rollDice();
+        const dice2 = rollDice();
+        const sum = dice1 + dice2;
+
+        // Display dice rolls
+        dice1Element.textContent = dice1;
+        dice2Element.textContent = dice2;
+        dice1Element.classList.remove('dice-roll-animation');
+        dice2Element.classList.remove('dice-roll-animation');
+
+        // Game rules
+        if (point === null) {
+          // Initial roll
+          if (sum === 7 || sum === 11) {
+            messageElement.textContent = `You rolled ${sum}. You win! 🎉`;
+          } else if (sum === 2 || sum === 3 || sum === 12) {
+            messageElement.textContent = `You rolled ${sum}. Craps! You lose. 😢`;
+          } else {
+            point = sum;
+            messageElement.textContent = `You rolled ${sum}. This is your point. Roll again to hit ${point}, but avoid 7!`;
+          }
+        } else {
+          // Subsequent rolls
+          if (sum === point) {
+            messageElement.textContent = `You rolled ${sum}. You hit your point! You win! 🎉`;
+            point = null; // Reset the game
+          } else if (sum === 7) {
+            messageElement.textContent = `You rolled ${sum}. You lose! 😢`;
+            point = null; // Reset the game
+          } else {
+            messageElement.textContent = `You rolled ${sum}. Keep rolling to hit your point (${point}) or avoid 7.`;
+          }
+        }
+      }, 1000); // Add a delay to show the dice animation
+    });
+  </script>
+</body>
+</html>
