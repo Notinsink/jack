@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JackpotJunction</title>
+    <style>
+        /* CSS code here */
+        body {
+            background-color: #000;
+            font-family: Arial, sans-serif;
+        }
+       .logo {
+            font-size: 48px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+       .game-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+       .game-icon {
+            margin: 20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ffd700;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+       .game-icon:hover {
+            background-color: #fff;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">JackpotJunction</div>
+    </header>
+    <main>
+        <div class="game-icons">
+            <div class="game-icon" onclick="location.href='kano.html'">Kano</div>
+            <div class="game-icon" onclick="location.href='roulette.html'">Roulette</div>
+            <div class="game-icon" onclick="location.href='slot.html'">Slot</div>
+            <div class="game-icon" onclick="location.href='craps.html'">Craps</div>
+            <div class="game-icon" onclick="location.href='wheel.html'">Wheel</div>
+        </div>
+    </main>
+    <script>
+        // JavaScript code here
+        console.log("Welcome to JackpotJunction!");
+    </script>
+</body>
+</html>
