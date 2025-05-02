@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Full Balance Sheet Tracker</title>
+  <title>Balance Sheet Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,7 +11,7 @@
       background: #f4f4f4;
       color: #333;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
     }
     form {
@@ -50,74 +50,148 @@
     .income { color: green; }
     .expense, .liability { color: red; }
     .asset { color: blue; }
+    .hidden { display: none; }
+    .logout-btn {
+      float: right;
+      margin-top: -40px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+    }
+    #exportBtn {
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+
   <h1>Balance Sheet Tracker</h1>
 
-  <form id="entryForm">
-    <label for="currency">Currency:</label>
-    <select id="currency">
-      <option value="₦">Naira (₦)</option>
-      <option value="$">Dollar ($)</option>
-      <option value="€">Euro (€)</option>
-    </select>
+  <!-- Login / Signup -->
+  <div id="authSection">
+    <form id="authForm">
+      <h2>Login or Sign Up</h2>
+      <input type="text" id="authUsername" placeholder="Username" required />
+      <input type="password" id="authPassword" placeholder="Password" required />
+      <label><input type="checkbox" id="togglePassword"> Show Password</label>
+      <input type="email" id="authEmail" placeholder="Email (optional)" />
+      <button type="submit">Login / Sign Up</button>
+    </form>
+  </div>
 
-    <label for="type">Entry Type:</label>
-    <select id="type">
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-      <option value="asset">Asset</option>
-      <option value="liability">Liability</option>
-    </select>
+  <!-- Main App -->
+  <div id="appSection" class="hidden">
+    <button class="logout-btn" onclick="logout()">Log Out</button>
 
-    <label for="description">Description:</label>
-    <input type="text" id="description" required>
+    <form id="entryForm">
+      <label for="currency">Currency:</label>
+      <select id="currency">
+        <option value="₦">Naira (₦)</option>
+        <option value="$">Dollar ($)</option>
+        <option value="€">Euro (€)</option>
+      </select>
 
-    <label for="amount">Amount:</label>
-    <input type="number" id="amount" step="0.01" required>
+      <label for="type">Entry Type:</label>
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+        <option value="asset">Asset</option>
+        <option value="liability">Liability</option>
+      </select>
 
-    <button type="submit">Add Entry</button>
-  </form>
+      <label for="description">Description:</label>
+      <input type="text" id="description" required>
 
-  <table id="balanceSheet">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Amount</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <label for="amount">Amount:</label>
+      <input type="number" id="amount" step="0.01" required>
 
-  <div class="summary">
-    <p><strong>Total Income:</strong> <span class="income" id="totalIncome">₦0.00</span></p>
-    <p><strong>Total Expense:</strong> <span class="expense" id="totalExpense">₦0.00</span></p>
-    <p><strong>Total Assets:</strong> <span class="asset" id="totalAsset">₦0.00</span></p>
-    <p><strong>Total Liabilities:</strong> <span class="liability" id="totalLiability">₦0.00</span></p>
-    <p><strong>Net Balance (Income - Expense):</strong> <span id="netBalance">₦0.00</span></p>
-    <p><strong>Net Worth (Assets - Liabilities):</strong> <span id="netWorth">₦0.00</span></p>
+      <button type="submit">Add Entry</button>
+    </form>
+
+    <table id="balanceSheet">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="summary">
+      <p><strong>Total Income:</strong> <span class="income" id="totalIncome">₦0.00</span></p>
+      <p><strong>Total Expense:</strong> <span class="expense" id="totalExpense">₦0.00</span></p>
+      <p><strong>Total Assets:</strong> <span class="asset" id="totalAsset">₦0.00</span></p>
+      <p><strong>Total Liabilities:</strong> <span class="liability" id="totalLiability">₦0.00</span></p>
+      <p><strong>Net Balance (Income - Expense):</strong> <span id="netBalance">₦0.00</span></p>
+      <p><strong>Net Worth (Assets - Liabilities):</strong> <span id="netWorth">₦0.00</span></p>
+      <button id="exportBtn">Export to CSV</button>
+    </div>
   </div>
 
   <script>
+    const authForm = document.getElementById('authForm');
+    const authSection = document.getElementById('authSection');
+    const appSection = document.getElementById('appSection');
+    const togglePassword = document.getElementById('togglePassword');
+
+    const currencySelect = document.getElementById('currency');
     const form = document.getElementById('entryForm');
     const tableBody = document.querySelector('#balanceSheet tbody');
+
     const totalIncomeDisplay = document.getElementById('totalIncome');
     const totalExpenseDisplay = document.getElementById('totalExpense');
     const totalAssetDisplay = document.getElementById('totalAsset');
     const totalLiabilityDisplay = document.getElementById('totalLiability');
     const netBalanceDisplay = document.getElementById('netBalance');
     const netWorthDisplay = document.getElementById('netWorth');
-    const currencySelect = document.getElementById('currency');
+    const exportBtn = document.getElementById('exportBtn');
 
+    let currentUser = null;
     let entries = [];
-    let id = 1;
+
+    togglePassword.addEventListener('change', () => {
+      const pwd = document.getElementById('authPassword');
+      pwd.type = togglePassword.checked ? "text" : "password";
+    });
+
+    authForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('authUsername').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const email = document.getElementById('authEmail').value.trim();
+
+      if (!username || !password) {
+        alert('Please enter a username and password.');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+      if (!users[username]) {
+        users[username] = { password, email, entries: [] };
+        alert('Account created! You are now logged in.');
+      } else if (users[username].password !== password) {
+        alert('Incorrect password!');
+        return;
+      }
+
+      currentUser = username;
+      entries = users[username].entries || [];
+      localStorage.setItem('users', JSON.stringify(users));
+      authSection.classList.add('hidden');
+      appSection.classList.remove('hidden');
+      updateTable();
+      updateSummary();
+    });
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-
       const currency = currencySelect.value;
       const type = document.getElementById('type').value;
       const description = document.getElementById('description').value.trim();
@@ -128,19 +202,29 @@
         return;
       }
 
-      entries.push({ id, currency, type, description, amount });
-      id++;
+      entries.push({ currency, type, description, amount });
       form.reset();
+
+      const users = JSON.parse(localStorage.getItem('users'));
+      users[currentUser].entries = entries;
+      localStorage.setItem('users', JSON.stringify(users));
+
+      updateTable();
+      updateSummary();
+    });
+
+    currencySelect.addEventListener('change', () => {
       updateTable();
       updateSummary();
     });
 
     function updateTable() {
       tableBody.innerHTML = "";
-      entries.forEach(entry => {
+      entries.forEach((entry, index) => {
+        if (entry.currency !== currencySelect.value) return;
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${entry.id}</td>
+          <td>${index + 1}</td>
           <td class="${entry.type}">${entry.type}</td>
           <td>${entry.description}</td>
           <td>${entry.currency}${entry.amount.toFixed(2)}</td>
@@ -151,27 +235,43 @@
 
     function updateSummary() {
       let income = 0, expense = 0, asset = 0, liability = 0;
-      let currentCurrency = currencySelect.value;
+      let currency = currencySelect.value;
 
       entries.forEach(entry => {
-        if (entry.currency !== currentCurrency) return; // Only sum entries of the selected currency
-        if (entry.type === "income") income += entry.amount;
-        else if (entry.type === "expense") expense += entry.amount;
-        else if (entry.type === "asset") asset += entry.amount;
-        else if (entry.type === "liability") liability += entry.amount;
+        if (entry.currency !== currency) return;
+        if (entry.type === 'income') income += entry.amount;
+        else if (entry.type === 'expense') expense += entry.amount;
+        else if (entry.type === 'asset') asset += entry.amount;
+        else if (entry.type === 'liability') liability += entry.amount;
       });
 
-      totalIncomeDisplay.textContent = `${currentCurrency}${income.toFixed(2)}`;
-      totalExpenseDisplay.textContent = `${currentCurrency}${expense.toFixed(2)}`;
-      totalAssetDisplay.textContent = `${currentCurrency}${asset.toFixed(2)}`;
-      totalLiabilityDisplay.textContent = `${currentCurrency}${liability.toFixed(2)}`;
-      netBalanceDisplay.textContent = `${currentCurrency}${(income - expense).toFixed(2)}`;
-      netWorthDisplay.textContent = `${currentCurrency}${(asset - liability).toFixed(2)}`;
+      totalIncomeDisplay.textContent = `${currency}${income.toFixed(2)}`;
+      totalExpenseDisplay.textContent = `${currency}${expense.toFixed(2)}`;
+      totalAssetDisplay.textContent = `${currency}${asset.toFixed(2)}`;
+      totalLiabilityDisplay.textContent = `${currency}${liability.toFixed(2)}`;
+      netBalanceDisplay.textContent = `${currency}${(income - expense).toFixed(2)}`;
+      netWorthDisplay.textContent = `${currency}${(asset - liability).toFixed(2)}`;
     }
 
-    currencySelect.addEventListener('change', () => {
-      updateTable();
-      updateSummary();
+    function logout() {
+      currentUser = null;
+      entries = [];
+      authSection.classList.remove('hidden');
+      appSection.classList.add('hidden');
+    }
+
+    exportBtn.addEventListener('click', () => {
+      let csv = "Type,Description,Amount,Currency\n";
+      entries.forEach(entry => {
+        if (entry.currency === currencySelect.value) {
+          csv += `${entry.type},${entry.description},${entry.amount},${entry.currency}\n`;
+        }
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `balance_sheet_${currencySelect.value}.csv`;
+      link.click();
     });
   </script>
 </body>
