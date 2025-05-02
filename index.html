@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Expense & Income Tracker</title>
+  <title>Full Balance Sheet Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,23 +48,33 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .income { color: green; }
-    .expense { color: red; }
+    .expense, .liability { color: red; }
+    .asset { color: blue; }
   </style>
 </head>
 <body>
   <h1>Balance Sheet Tracker</h1>
-  
+
   <form id="entryForm">
-    <label for="type">Type:</label>
+    <label for="currency">Currency:</label>
+    <select id="currency">
+      <option value="₦">Naira (₦)</option>
+      <option value="$">Dollar ($)</option>
+      <option value="€">Euro (€)</option>
+    </select>
+
+    <label for="type">Entry Type:</label>
     <select id="type">
       <option value="income">Income</option>
       <option value="expense">Expense</option>
+      <option value="asset">Asset</option>
+      <option value="liability">Liability</option>
     </select>
 
     <label for="description">Description:</label>
     <input type="text" id="description" required>
 
-    <label for="amount">Amount (₦):</label>
+    <label for="amount">Amount:</label>
     <input type="number" id="amount" step="0.01" required>
 
     <button type="submit">Add Entry</button>
@@ -76,7 +86,7 @@
         <th>#</th>
         <th>Type</th>
         <th>Description</th>
-        <th>Amount (₦)</th>
+        <th>Amount</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -85,7 +95,10 @@
   <div class="summary">
     <p><strong>Total Income:</strong> <span class="income" id="totalIncome">₦0.00</span></p>
     <p><strong>Total Expense:</strong> <span class="expense" id="totalExpense">₦0.00</span></p>
-    <p><strong>Balance:</strong> <span id="netBalance">₦0.00</span></p>
+    <p><strong>Total Assets:</strong> <span class="asset" id="totalAsset">₦0.00</span></p>
+    <p><strong>Total Liabilities:</strong> <span class="liability" id="totalLiability">₦0.00</span></p>
+    <p><strong>Net Balance (Income - Expense):</strong> <span id="netBalance">₦0.00</span></p>
+    <p><strong>Net Worth (Assets - Liabilities):</strong> <span id="netWorth">₦0.00</span></p>
   </div>
 
   <script>
@@ -93,7 +106,11 @@
     const tableBody = document.querySelector('#balanceSheet tbody');
     const totalIncomeDisplay = document.getElementById('totalIncome');
     const totalExpenseDisplay = document.getElementById('totalExpense');
+    const totalAssetDisplay = document.getElementById('totalAsset');
+    const totalLiabilityDisplay = document.getElementById('totalLiability');
     const netBalanceDisplay = document.getElementById('netBalance');
+    const netWorthDisplay = document.getElementById('netWorth');
+    const currencySelect = document.getElementById('currency');
 
     let entries = [];
     let id = 1;
@@ -101,6 +118,7 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
+      const currency = currencySelect.value;
       const type = document.getElementById('type').value;
       const description = document.getElementById('description').value.trim();
       const amount = parseFloat(document.getElementById('amount').value);
@@ -110,7 +128,7 @@
         return;
       }
 
-      entries.push({ id, type, description, amount });
+      entries.push({ id, currency, type, description, amount });
       id++;
       form.reset();
       updateTable();
@@ -125,24 +143,36 @@
           <td>${entry.id}</td>
           <td class="${entry.type}">${entry.type}</td>
           <td>${entry.description}</td>
-          <td>₦${entry.amount.toFixed(2)}</td>
+          <td>${entry.currency}${entry.amount.toFixed(2)}</td>
         `;
         tableBody.appendChild(row);
       });
     }
 
     function updateSummary() {
-      let income = 0;
-      let expense = 0;
+      let income = 0, expense = 0, asset = 0, liability = 0;
+      let currentCurrency = currencySelect.value;
+
       entries.forEach(entry => {
+        if (entry.currency !== currentCurrency) return; // Only sum entries of the selected currency
         if (entry.type === "income") income += entry.amount;
-        else expense += entry.amount;
+        else if (entry.type === "expense") expense += entry.amount;
+        else if (entry.type === "asset") asset += entry.amount;
+        else if (entry.type === "liability") liability += entry.amount;
       });
 
-      totalIncomeDisplay.textContent = `₦${income.toFixed(2)}`;
-      totalExpenseDisplay.textContent = `₦${expense.toFixed(2)}`;
-      netBalanceDisplay.textContent = `₦${(income - expense).toFixed(2)}`;
+      totalIncomeDisplay.textContent = `${currentCurrency}${income.toFixed(2)}`;
+      totalExpenseDisplay.textContent = `${currentCurrency}${expense.toFixed(2)}`;
+      totalAssetDisplay.textContent = `${currentCurrency}${asset.toFixed(2)}`;
+      totalLiabilityDisplay.textContent = `${currentCurrency}${liability.toFixed(2)}`;
+      netBalanceDisplay.textContent = `${currentCurrency}${(income - expense).toFixed(2)}`;
+      netWorthDisplay.textContent = `${currentCurrency}${(asset - liability).toFixed(2)}`;
     }
+
+    currencySelect.addEventListener('change', () => {
+      updateTable();
+      updateSummary();
+    });
   </script>
 </body>
 </html>
