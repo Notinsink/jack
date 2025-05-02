@@ -3,314 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Balance - Financial Tracker</title>
+  <title>Balance App</title>
   <style>
-    :root {
-      --bg-color: #f0f2f5;
-      --card-bg: #ffffff;
-      --primary-color: #007bff;
-      --text-color: #333333;
-      --error-color: #ff4d4f;
-    }
-
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      padding: 0;
     }
 
     .container {
-      max-width: 1200px;
-      width: 100%;
-      padding: 20px;
-    }
-
-    .login-container, .dashboard-container {
       width: 100%;
       max-width: 500px;
-      background-color: var(--card-bg);
+      margin: 0 auto;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+      margin-top: 50px;
     }
 
-    h2 {
-      color: var(--primary-color);
+    h1 {
       text-align: center;
+      color: #333;
     }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      font-weight: 600;
+    label {
+      font-weight: bold;
+      display: block;
       margin-bottom: 5px;
+      color: #555;
     }
 
-    .form-group input {
+    input[type="text"], input[type="password"], input[type="email"], select {
       width: 100%;
       padding: 10px;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 4px;
+      box-sizing: border-box;
     }
 
-    .form-group input:focus {
-      border-color: var(--primary-color);
-    }
-
-    .form-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-
-    .form-actions input[type="checkbox"] {
-      margin-right: 5px;
-    }
-
-    .submit-btn {
+    button {
       width: 100%;
       padding: 10px;
-      background-color: var(--primary-color);
-      color: #fff;
+      background-color: #007BFF;
+      color: white;
       border: none;
       border-radius: 4px;
-      font-size: 16px;
       cursor: pointer;
     }
 
-    .submit-btn:hover {
+    button:hover {
       background-color: #0056b3;
     }
 
-    .toggle-password {
-      position: relative;
-    }
-
-    .toggle-password-icon {
-      position: absolute;
-      top: 35px;
-      right: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      color: #888;
-    }
-
-    .dashboard-container {
-      display: none;
-    }
-
-    .dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .dashboard input, .dashboard button {
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .balance-sheet {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f8f8f8;
-      border-radius: 4px;
-    }
-
-    .currency-selector {
+    .form-container {
       margin-bottom: 20px;
     }
 
-    .export-btn {
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .export-btn:hover {
-      background-color: #0056b3;
-    }
-
     .error-message {
-      color: var(--error-color);
+      color: red;
       font-size: 12px;
     }
 
-    .balance-sheet {
-      margin-top: 20px;
+    .link {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .link a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Login/Registration Page -->
-    <div id="loginContainer" class="login-container">
-      <h2>Login to Balance</h2>
-      <form id="loginForm" onsubmit="login(event)">
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" name="fullName" required>
-          <div class="error-message" id="nameError"></div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" required>
-          <div class="error-message" id="emailError"></div>
-        </div>
-        <div class="form-group toggle-password">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required>
-          <span class="toggle-password-icon" onclick="togglePasswordVisibility()">👁️</span>
-          <div class="error-message" id="passwordError"></div>
-        </div>
-        <button type="submit" class="submit-btn">Login</button>
-      </form>
-      <p>Don't have an account? <a href="#" onclick="showRegister()">Sign Up</a></p>
+  <!-- Login Page -->
+  <div id="loginPage" class="container">
+    <h1>Login</h1>
+    <div class="form-container">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="Enter your email" required>
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password" required>
+      <div id="loginError" class="error-message"></div>
+      <button onclick="login()">Login</button>
     </div>
-
-    <!-- Registration Page -->
-    <div id="registerContainer" class="login-container" style="display:none;">
-      <h2>Sign Up for Balance</h2>
-      <form id="registerForm" onsubmit="register(event)">
-        <div class="form-group">
-          <label for="registerName">Full Name</label>
-          <input type="text" id="registerName" required>
-          <div class="error-message" id="registerNameError"></div>
-        </div>
-        <div class="form-group">
-          <label for="registerEmail">Email Address</label>
-          <input type="email" id="registerEmail" required>
-          <div class="error-message" id="registerEmailError"></div>
-        </div>
-        <div class="form-group toggle-password">
-          <label for="registerPassword">Password</label>
-          <input type="password" id="registerPassword" required>
-        </div>
-        <button type="submit" class="submit-btn">Sign Up</button>
-      </form>
-      <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+    <div class="link">
+      <p>Don't have an account? <a href="javascript:void(0);" onclick="showRegistration()">Register here</a></p>
     </div>
+  </div>
 
-    <!-- Dashboard Page -->
-    <div id="dashboardContainer" class="dashboard-container">
-      <h2>Balance Tracker Dashboard</h2>
-      <div class="currency-selector">
-        <label for="currency">Select Currency:</label>
-        <select id="currency">
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="NGN">NGN</option>
-        </select>
-      </div>
+  <!-- Registration Page -->
+  <div id="registrationPage" class="container" style="display: none;">
+    <h1>Register</h1>
+    <div class="form-container">
+      <label for="regUsername">Username</label>
+      <input type="text" id="regUsername" placeholder="Enter your username" required>
+      <label for="regEmail">Email</label>
+      <input type="email" id="regEmail" placeholder="Enter your email" required>
+      <label for="regPassword">Password</label>
+      <input type="password" id="regPassword" placeholder="Enter your password" required>
+      <div id="regError" class="error-message"></div>
+      <button onclick="register()">Register</button>
+    </div>
+    <div class="link">
+      <p>Already have an account? <a href="javascript:void(0);" onclick="showLogin()">Login here</a></p>
+    </div>
+  </div>
 
-      <!-- Income/Expenses/Assets/Liabilities Inputs -->
-      <div class="dashboard">
-        <input type="number" id="income" placeholder="Enter Income" />
-        <input type="number" id="expenses" placeholder="Enter Expenses" />
-        <input type="number" id="assets" placeholder="Enter Assets" />
-        <input type="number" id="liabilities" placeholder="Enter Liabilities" />
-      </div>
-
-      <!-- Generate Balance Sheet Button -->
-      <button onclick="generateBalanceSheet()" class="export-btn">Generate Balance Sheet</button>
-
-      <div id="balanceSheet" class="balance-sheet"></div>
-
-      <button onclick="logout()" class="submit-btn">Logout</button>
+  <!-- Dashboard (only visible after login) -->
+  <div id="dashboardPage" class="container" style="display: none;">
+    <h1>Welcome, <span id="userName"></span></h1>
+    <button onclick="logout()">Logout</button>
+    <div id="balanceSection">
+      <h2>Your Balance</h2>
+      <label for="income">Income: </label>
+      <input type="number" id="income" placeholder="Enter your income">
+      <label for="expenses">Expenses: </label>
+      <input type="number" id="expenses" placeholder="Enter your expenses">
+      <label for="assets">Assets: </label>
+      <input type="number" id="assets" placeholder="Enter your assets">
+      <label for="liabilities">Liabilities: </label>
+      <input type="number" id="liabilities" placeholder="Enter your liabilities">
+      <button onclick="generateBalanceSheet()">Generate Balance Sheet</button>
+      <div id="balanceSheet"></div>
     </div>
   </div>
 
   <script>
-    let loggedIn = false;
+    let users = JSON.parse(localStorage.getItem('users')) || [];
 
-    function togglePasswordVisibility() {
-      const passwordInput = document.getElementById('password');
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-    }
-
-    function login(event) {
-      event.preventDefault();
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (fullName && email && password) {
-        loggedIn = true;
-        showDashboard();
-      } else {
-        alert('Please fill in all fields.');
-      }
-    }
-
-    function register(event) {
-      event.preventDefault();
-      const registerName = document.getElementById('registerName').value.trim();
-      const registerEmail = document.getElementById('registerEmail').value.trim();
-      const registerPassword = document.getElementById('registerPassword').value.trim();
-
-      if (registerName && registerEmail && registerPassword) {
-        alert('Registration Successful');
-        showLogin();
-      } else {
-        alert('Please fill in all fields.');
-      }
-    }
-
-    function showRegister() {
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('registerContainer').style.display = 'block';
+    function showRegistration() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('registrationPage').style.display = 'block';
     }
 
     function showLogin() {
-      document.getElementById('loginContainer').style.display = 'block';
-      document.getElementById('registerContainer').style.display = 'none';
+      document.getElementById('registrationPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
     }
 
-    function showDashboard() {
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('dashboardContainer').style.display = 'block';
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        document.getElementById('userName').textContent = user.username;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('dashboardPage').style.display = 'block';
+      } else {
+        document.getElementById('loginError').textContent = 'Invalid email or password.';
+      }
     }
 
-    function logout() {
-      loggedIn = false;
+    function register() {
+      const username = document.getElementById('regUsername').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      
+      if (users.find(u => u.email === email)) {
+        document.getElementById('regError').textContent = 'Email is already registered.';
+        return;
+      }
+
+      const newUser = { username, email, password };
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Registration successful!');
       showLogin();
     }
 
     function generateBalanceSheet() {
-      const income = document.getElementById('income').value;
-      const expenses = document.getElementById('expenses').value;
-      const assets = document.getElementById('assets').value;
-      const liabilities = document.getElementById('liabilities').value;
+      const income = parseFloat(document.getElementById('income').value) || 0;
+      const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+      const assets = parseFloat(document.getElementById('assets').value) || 0;
+      const liabilities = parseFloat(document.getElementById('liabilities').value) || 0;
 
       const balance = income - expenses;
       const netWorth = assets - liabilities;
 
       const balanceSheet = `
-        <h3>Balance Sheet</h3>
-        <p>Income: ${
-                  <p>Income: ${income}</p>
-        <p>Expenses: ${expenses}</p>
-        <p>Assets: ${assets}</p>
-        <p>Liabilities: ${liabilities}</p>
-        <h4>Balance: ${balance}</h4>
-        <h4>Net Worth: ${netWorth}</h4>
+        <p>Income: $${income}</p>
+        <p>Expenses: $${expenses}</p>
+        <p>Assets: $${assets}</p>
+        <p>Liabilities: $${liabilities}</p>
+        <h4>Balance: $${balance}</h4>
+        <h4>Net Worth: $${netWorth}</h4>
       `;
 
       document.getElementById('balanceSheet').innerHTML = balanceSheet;
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      document.getElementById('dashboardPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
+    }
+
+    // If user is already logged in, show dashboard
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser) {
+      document.getElementById('userName').textContent = currentUser.username;
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboardPage').style.display = 'block';
     }
   </script>
 </body>
