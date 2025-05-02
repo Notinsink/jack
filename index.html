@@ -1,116 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jackpot Casino</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense & Income Tracker</title>
   <style>
-    /* CSS Styles */
     body {
-      margin: 0;
-      font-family: 'Arial Black', sans-serif;
-      background: radial-gradient(circle, #222 50%, #000);
-      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+    }
+    h1 {
       text-align: center;
     }
-    header {
-      background-color: #000;
-      padding: 30px 10px;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.8);
-      border-bottom: 3px solid #ffd700;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 3rem;
-      color: #ffd700;
-      text-shadow: 0 0 10px #ffb700, 0 0 20px #ffcc00, 0 0 30px gold;
-      letter-spacing: 5px;
-    }
-    nav {
-      margin: 20px 0;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px 0;
-      border-top: 2px solid #ffd700;
-      border-bottom: 2px solid #ffd700;
-    }
-    nav a {
-      margin: 0 20px;
-      text-decoration: none;
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #ffd700;
-      text-shadow: 0 0 5px #fff, 0 0 10px gold;
-      transition: all 0.3s ease-in-out;
-    }
-    nav a:hover {
-      color: #fff;
-      text-shadow: 0 0 10px white, 0 0 20px #fff;
-      font-size: 1.6rem;
-    }
-    .game-section {
-      padding: 40px 20px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 2px solid #ffd700;
-      margin: 20px auto;
-      width: 80%;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.8);
-      border-radius: 10px;
-    }
-    .game-section h2 {
-      color: #ffcc00;
-      text-shadow: 0 0 10px gold, 0 0 20px #ffb700;
-      font-size: 2.5rem;
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
       margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .game-section p {
-      font-size: 1.2rem;
-      color: #ddd;
-      text-shadow: 0 0 5px #333;
+    input, select, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
     }
-    footer {
-      background-color: #111;
-      padding: 20px 0;
-      color: #ccc;
-      font-size: 0.9rem;
-      border-top: 2px solid #ffd700;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
-    footer p {
-      margin: 0;
-      font-weight: bold;
-      text-shadow: 0 0 5px #000;
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
     }
+    th {
+      background-color: #eee;
+    }
+    .summary {
+      margin-top: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .income { color: green; }
+    .expense { color: red; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🎰 Jackpot Casino 🎰</h1>
-  </header>
-  <nav>
-    <a href="craps.html">🎲 Craps</a>
-    <a href="kano.html">💰 Kano</a>
-    <a href="roulette.html">🔄 Roulette</a>
-    <a href="slot.html">🎰 Slots</a>
-    <a href="wheel.html">🎡 Spin the Wheel</a>
-  </nav>
-  <div class="game-section">
-    <h2>Welcome to the Casino Floor</h2>
-    <p>Test your luck and play big! Select a game from above to start your winning streak.</p>
+  <h1>Balance Sheet Tracker</h1>
+  
+  <form id="entryForm">
+    <label for="type">Type:</label>
+    <select id="type">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <label for="description">Description:</label>
+    <input type="text" id="description" required>
+
+    <label for="amount">Amount (₦):</label>
+    <input type="number" id="amount" step="0.01" required>
+
+    <button type="submit">Add Entry</button>
+  </form>
+
+  <table id="balanceSheet">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Amount (₦)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="summary">
+    <p><strong>Total Income:</strong> <span class="income" id="totalIncome">₦0.00</span></p>
+    <p><strong>Total Expense:</strong> <span class="expense" id="totalExpense">₦0.00</span></p>
+    <p><strong>Balance:</strong> <span id="netBalance">₦0.00</span></p>
   </div>
-  <footer>
-    <p>&copy; 2024 Jackpot Casino. Your Gateway to Winning!</p>
-  </footer>
+
   <script>
-    // JavaScript for adding hover effects
-    document.querySelectorAll("nav a").forEach(link => {
-      link.addEventListener("mouseover", () => {
-        link.style.fontSize = "1.8rem";
-        link.style.color = "#00ff00";
-      });
-      link.addEventListener("mouseout", () => {
-        link.style.fontSize = "1.4rem";
-        link.style.color = "#ffd700";
-      });
+    const form = document.getElementById('entryForm');
+    const tableBody = document.querySelector('#balanceSheet tbody');
+    const totalIncomeDisplay = document.getElementById('totalIncome');
+    const totalExpenseDisplay = document.getElementById('totalExpense');
+    const netBalanceDisplay = document.getElementById('netBalance');
+
+    let entries = [];
+    let id = 1;
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const type = document.getElementById('type').value;
+      const description = document.getElementById('description').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (!description || isNaN(amount) || amount <= 0) {
+        alert("Please enter valid data.");
+        return;
+      }
+
+      entries.push({ id, type, description, amount });
+      id++;
+      form.reset();
+      updateTable();
+      updateSummary();
     });
+
+    function updateTable() {
+      tableBody.innerHTML = "";
+      entries.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.id}</td>
+          <td class="${entry.type}">${entry.type}</td>
+          <td>${entry.description}</td>
+          <td>₦${entry.amount.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function updateSummary() {
+      let income = 0;
+      let expense = 0;
+      entries.forEach(entry => {
+        if (entry.type === "income") income += entry.amount;
+        else expense += entry.amount;
+      });
+
+      totalIncomeDisplay.textContent = `₦${income.toFixed(2)}`;
+      totalExpenseDisplay.textContent = `₦${expense.toFixed(2)}`;
+      netBalanceDisplay.textContent = `₦${(income - expense).toFixed(2)}`;
+    }
   </script>
 </body>
 </html>
