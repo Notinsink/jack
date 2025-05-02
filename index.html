@@ -129,11 +129,13 @@
         function showLogin() {
             document.getElementById("login-form").classList.add("active");
             document.getElementById("signup-form").classList.remove("active");
+            document.getElementById("dashboard").classList.remove("active");
         }
 
         function showSignup() {
             document.getElementById("signup-form").classList.add("active");
             document.getElementById("login-form").classList.remove("active");
+            document.getElementById("dashboard").classList.remove("active");
         }
 
         function showDashboard() {
@@ -215,6 +217,17 @@
             doc.text(`Net Worth: $${netWorth}`, 10, 60);
 
             doc.save('balance-sheet.pdf');
+        }
+
+        // On page load, check if there's a current user
+        window.onload = function() {
+            const storedUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (storedUser) {
+                currentUser = storedUser;
+                showDashboard();
+            } else {
+                showLogin();
+            }
         }
     </script>
 
