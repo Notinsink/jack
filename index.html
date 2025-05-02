@@ -64,6 +64,13 @@
       border: none;
       margin-top: 10px;
     }
+    .deleteBtn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -118,6 +125,7 @@
           <th>Type</th>
           <th>Description</th>
           <th>Amount</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -228,51 +236,76 @@
           <td class="${entry.type}">${entry.type}</td>
           <td>${entry.description}</td>
           <td>${entry.currency}${entry.amount.toFixed(2)}</td>
+          <td><button class="deleteBtn" onclick="removeEntry(${index})">Delete</button></td>
         `;
         tableBody.appendChild(row);
       });
     }
 
-    function updateSummary() {
-      let income = 0, expense = 0, asset = 0, liability = 0;
-      let currency = currencySelect.value;
+    function removeEntry(index) {
+      if (confirm("Are you sure you want to delete this entry?")) {
+        entries.splice(index, 1);
 
-      entries.forEach(entry => {
-        if (entry.currency !== currency) return;
-        if (entry.type === 'income') income += entry.amount;
-        else if (entry.type === 'expense') expense += entry.amount;
-        else if (entry.type === 'asset') asset += entry.amount;
-        else if (entry.type === 'liability') liability += entry.amount;
-      });
+        const users = JSON.parse(localStorage.getItem('users'));
+        users[currentUser].entries = entries;
+        localStorage.setItem('users', JSON.stringify(users));
 
-      totalIncomeDisplay.textContent = `${currency}${income.toFixed(2)}`;
-      totalExpenseDisplay.textContent = `${currency}${expense.toFixed(2)}`;
-      totalAssetDisplay.textContent = `${currency}${asset.toFixed(2)}`;
-      totalLiabilityDisplay.textContent = `${currency}${liability.toFixed(2)}`;
-      netBalanceDisplay.textContent = `${currency}${(income - expense).toFixed(2)}`;
-      netWorthDisplay.textContent = `${currency}${(asset - liability).toFixed(2)}`;
+        updateTable();
+        updateSummary();
+      }
     }
 
+    function updateSummary() {
+      let income = 0, expense = 0, asset = 0, liability
+            = 0;
+
+      entries.forEach(entry => {
+        if (entry.currency === currencySelect.value) {
+          if (entry.type === 'income') {
+            income += entry.amount;
+          } else if (entry.type === 'expense') {
+            expense += entry.amount;
+          } else if (entry.type === 'asset') {
+            asset += entry.amount;
+          } else if (entry.type === 'liability') {
+            liability += entry.amount;
+          }
+        }
+      });
+
+      totalIncomeDisplay.textContent = `${currencySelect.value}${income.toFixed(2)}`;
+      totalExpenseDisplay.textContent = `${currencySelect.value}${expense.toFixed(2)}`;
+      totalAssetDisplay.textContent = `${currencySelect.value}${asset.toFixed(2)}`;
+      totalLiabilityDisplay.textContent = `${currencySelect.value}${liability.toFixed(2)}`;
+
+      netBalanceDisplay.textContent = `${currencySelect.value}${(income - expense).toFixed(2)}`;
+      netWorthDisplay.textContent = `${currencySelect.value}${(asset - liability).toFixed(2)}`;
+    }
+
+    exportBtn.addEventListener('click', () => {
+      let csvContent = "Type,Description,Amount,Currency\n";
+      entries.forEach(entry => {
+        if (entry.currency === currencySelect.value) {
+          csvContent += `${entry.type},${entry.description},${entry.amount},${entry.currency}\n`;
+        }
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'balance_sheet.csv';
+      link.click();
+    });
+
     function logout() {
+      localStorage.removeItem('currentUser');
       currentUser = null;
       entries = [];
       authSection.classList.remove('hidden');
       appSection.classList.add('hidden');
     }
-
-    exportBtn.addEventListener('click', () => {
-      let csv = "Type,Description,Amount,Currency\n";
-      entries.forEach(entry => {
-        if (entry.currency === currencySelect.value) {
-          csv += `${entry.type},${entry.description},${entry.amount},${entry.currency}\n`;
-        }
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `balance_sheet_${currencySelect.value}.csv`;
-      link.click();
-    });
   </script>
+
 </body>
 </html>
