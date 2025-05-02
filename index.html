@@ -1,200 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Balance App</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 500px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
-      width: 100%;
-      margin-top: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    #dashboard, #signupPage {
-      display: none;
-    }
-    .balance-box {
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balance App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .dashboard-container {
+            display: none;
+        }
+
+        .balance-sheet {
+            margin-top: 20px;
+        }
+
+        .balance-sheet table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .balance-sheet table, .balance-sheet th, .balance-sheet td {
+            border: 1px solid #ddd;
+        }
+
+        .balance-sheet th, .balance-sheet td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .balance-sheet th {
+            background-color: #f0f0f0;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="loginPage">
-    <h2>Login</h2>
-    <label>Email</label>
-    <input type="email" id="loginEmail" required>
-    <label>Password</label>
-    <input type="password" id="loginPassword" required>
-    <button onclick="login()">Login</button>
-    <p style="text-align:center;">Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a></p>
-  </div>
 
-  <div class="container" id="signupPage">
-    <h2>Sign Up</h2>
-    <label>Username</label>
-    <input type="text" id="signupUsername" required>
-    <label>Email</label>
-    <input type="email" id="signupEmail" required>
-    <label>Password</label>
-    <input type="password" id="signupPassword" required>
-    <button onclick="signup()">Register</button>
-    <p style="text-align:center;">Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
-  </div>
+<div class="container">
+    <h1>Balance App</h1>
 
-  <div class="container" id="dashboard">
-    <h2>Balance Dashboard</h2>
-    <label>Income</label>
-    <input type="number" id="income">
-    <label>Expense</label>
-    <input type="number" id="expense">
-    <label>Asset</label>
-    <input type="number" id="asset">
-    <label>Liability</label>
-    <input type="number" id="liability">
-    <button onclick="calculate()">Calculate Balance</button>
-    <button onclick="exportPDF()">Export PDF</button>
-    <button onclick="logout()">Logout</button>
-    <div class="balance-box" id="result"></div>
-  </div>
+    <!-- Sign-Up / Login Page -->
+    <div class="form-container" id="auth-form">
+        <h2 id="auth-title">Sign Up</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="handleAuth()">Sign Up</button>
+        <p id="toggle-auth">Already have an account? <a href="javascript:void(0);" onclick="toggleAuthForm()">Login</a></p>
+    </div>
 
-  <script>
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboard">
+        <h2>Welcome <span id="user-name"></span></h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
 
-    function showSignup() {
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("signupPage").style.display = "block";
+        <div class="balance-sheet">
+            <h3>Enter Your Financial Data</h3>
+            <input type="number" id="income" placeholder="Income" required>
+            <input type="number" id="expenses" placeholder="Expenses" required>
+            <input type="number" id="assets" placeholder="Assets" required>
+            <input type="number" id="liabilities" placeholder="Liabilities" required>
+            <button onclick="generateBalanceSheet()">Generate Balance Sheet</button>
+        </div>
+
+        <div class="balance-sheet" id="balance-sheet-container">
+            <h3>Your Balance Sheet</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Income</th>
+                        <th>Expenses</th>
+                        <th>Assets</th>
+                        <th>Liabilities</th>
+                        <th>Net Worth</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="income-amount"></td>
+                        <td id="expenses-amount"></td>
+                        <td id="assets-amount"></td>
+                        <td id="liabilities-amount"></td>
+                        <td id="net-worth"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="exportToPDF()">Export as PDF</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+
+    // Toggle between sign-up and login form
+    function toggleAuthForm() {
+        const authForm = document.getElementById("auth-form");
+        const authTitle = document.getElementById("auth-title");
+        const toggleAuth = document.getElementById("toggle-auth");
+
+        if (authTitle.innerText === "Sign Up") {
+            authTitle.innerText = "Login";
+            toggleAuth.innerHTML = "Don't have an account? <a href='javascript:void(0);' onclick='toggleAuthForm()'>Sign Up</a>";
+            authForm.querySelector("button").innerText = "Login";
+        } else {
+            authTitle.innerText = "Sign Up";
+            toggleAuth.innerHTML = "Already have an account? <a href='javascript:void(0);' onclick='toggleAuthForm()'>Login</a>";
+            authForm.querySelector("button").innerText = "Sign Up";
+        }
     }
 
-    function showLogin() {
-      document.getElementById("signupPage").style.display = "none";
-      document.getElementById("loginPage").style.display = "block";
+    // Handle authentication (sign-up / login)
+    function handleAuth() {
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const authTitle = document.getElementById("auth-title").innerText;
+
+        if (!username || !email || !password) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        if (authTitle === "Sign Up") {
+            const userData = { username, email, password };
+            localStorage.setItem("user", JSON.stringify(userData));
+            alert("Sign-up successful! Please log in.");
+        } else if (authTitle === "Login") {
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+            if (storedUser && storedUser.email === email && storedUser.password === password) {
+                currentUser = storedUser;
+                showDashboard();
+            } else {
+                alert("Invalid login credentials.");
+            }
+        }
     }
 
+    // Show the dashboard after login
     function showDashboard() {
-      document.getElementById("signupPage").style.display = "none";
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
+        document.getElementById("auth-form").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("user-name").innerText = currentUser.username;
     }
 
-    function signup() {
-      const username = document.getElementById("signupUsername").value;
-      const email = document.getElementById("signupEmail").value;
-      const password = document.getElementById("signupPassword").value;
-
-      if (users.some(u => u.email === email)) {
-        alert("Email already registered.");
-        return;
-      }
-
-      users.push({ username, email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Registration successful!");
-      showLogin();
-    }
-
-    function login() {
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-
-      const user = users.find(u => u.email === email && u.password === password);
-      if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        showDashboard();
-      } else {
-        alert("Invalid credentials.");
-      }
-    }
-
+    // Handle logout
     function logout() {
-      localStorage.removeItem("currentUser");
-      location.reload();
+        currentUser = null;
+        document.getElementById("auth-form").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
     }
 
-    function calculate() {
-      const income = parseFloat(document.getElementById("income").value) || 0;
-      const expense = parseFloat(document.getElementById("expense").value) || 0;
-      const asset = parseFloat(document.getElementById("asset").value) || 0;
-      const liability = parseFloat(document.getElementById("liability").value) || 0;
-      const balance = income - expense;
-      const netWorth = asset - liability;
+    // Generate and display balance sheet
+    function generateBalanceSheet() {
+        const income = parseFloat(document.getElementById("income").value);
+        const expenses = parseFloat(document.getElementById("expenses").value);
+        const assets = parseFloat(document.getElementById("assets").value);
+        const liabilities = parseFloat(document.getElementById("liabilities").value);
 
-      document.getElementById("result").innerHTML = `
-        <strong>Balance:</strong> $${balance}<br>
-        <strong>Net Worth:</strong> $${netWorth}
-      `;
+        if (isNaN(income) || isNaN(expenses) || isNaN(assets) || isNaN(liabilities)) {
+            alert("Please fill in all financial fields.");
+            return;
+        }
 
-      localStorage.setItem("lastBalance", JSON.stringify({ income, expense, asset, liability, balance, netWorth }));
+        const netWorth = (income + assets) - (expenses + liabilities);
+        document.getElementById("income-amount").innerText = income;
+        document.getElementById("expenses-amount").innerText = expenses;
+        document.getElementById("assets-amount").innerText = assets;
+        document.getElementById("liabilities-amount").innerText = liabilities;
+        document.getElementById("net-worth").innerText = netWorth;
+        document.getElementById("balance-sheet-container").style.display = "block";
     }
 
-    function exportPDF() {
-      const data = JSON.parse(localStorage.getItem("lastBalance"));
-      if (!data) {
-        alert("No data to export.");
-        return;
-      }
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.text("Balance Sheet", 20, 20);
-      doc.text(`Income: $${data.income}`, 20, 30);
-      doc.text(`Expenses: $${data.expense}`, 20, 40);
-      doc.text(`Assets: $${data.asset}`, 20, 50);
-      doc.text(`Liabilities: $${data.liability}`, 20, 60);
-      doc.text(`Balance: $${data.balance}`, 20, 70);
-      doc.text(`Net Worth: $${data.netWorth}`, 20, 80);
-
-      doc.save("balance-sheet.pdf");
+    // Export balance sheet as PDF
+    function exportToPDF() {
+        const doc = new jsPDF();
+        const table = document.querySelector("table").outerHTML;
+        doc.html(table, {
+            callback: function (doc) {
+                doc.save("balance-sheet.pdf");
+            }
+        });
     }
+</script>
 
-    // Auto-login if user is already authenticated
-    window.onload = () => {
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      if (currentUser) showDashboard();
-    };
-  </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </body>
 </html>
