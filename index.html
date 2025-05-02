@@ -1,238 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expense Tracker & Balance Sheet</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Balance</title>
   <style>
+    :root {
+      --primary: #2b2b2b;
+      --background: #f9f9f9;
+      --accent: #007bff;
+      --text: #222;
+    }
+
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f6f9;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      width: 80%;
-      margin: 20px auto;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
       padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 0;
     }
+
     header {
       text-align: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-      color: #444;
-    }
-    .form-container, .balance-container {
-      margin-top: 20px;
-    }
-    .form-container input, .form-container select {
-      width: 100%;
-      padding: 10px;
+      font-size: 2em;
       margin-bottom: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
     }
-    .form-container button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
+
+    .tagline {
+      text-align: center;
+      color: gray;
+      margin-bottom: 30px;
     }
-    .form-container button:hover {
-      background-color: #0056b3;
+
+    select, input, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 1em;
     }
-    .entries-list {
-      margin-top: 20px;
-      list-style: none;
-      padding: 0;
+
+    .section {
+      margin: 20px 0;
     }
-    .entries-list li {
+
+    .list {
+      margin-top: 10px;
+    }
+
+    .list div {
       display: flex;
       justify-content: space-between;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
+      margin: 3px 0;
+      padding: 4px;
+      background: #e9e9e9;
     }
-    .entries-list li button {
-      padding: 5px 10px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+
+    .theme-selector {
+      float: right;
     }
-    .entries-list li button:hover {
-      background-color: #c82333;
-    }
-    .balance-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+
+    .balance {
+      font-weight: bold;
+      font-size: 1.2em;
       margin-top: 20px;
     }
-    .balance-container div {
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    button {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
     }
-    .balance-container div h3 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
+
+    button:hover {
+      opacity: 0.9;
     }
-    select#theme-color {
-      width: 150px;
-      padding: 8px;
-      margin: 20px 0;
-      font-size: 1rem;
+
+    .remove-btn {
+      background-color: red;
+      padding: 2px 8px;
+      font-size: 0.9em;
+      margin-left: 10px;
     }
-    .hidden {
-      display: none;
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.9em;
+      color: gray;
     }
   </style>
 </head>
 <body>
+  <header>Balance</header>
+  <div class="tagline">Track your income, expenses, assets & liabilities</div>
 
-  <div class="container">
-    <header>Expense Tracker & Balance Sheet</header>
-
-    <div class="form-container">
-      <label for="entry-type">Select Entry Type:</label>
-      <select id="entry-type">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-        <option value="asset">Asset</option>
-        <option value="liability">Liability</option>
-      </select>
-      
-      <label for="entry-description">Description:</label>
-      <input type="text" id="entry-description" placeholder="Description of the entry">
-      
-      <label for="entry-amount">Amount:</label>
-      <input type="number" id="entry-amount" placeholder="Amount in dollars" min="0">
-      
-      <label for="entry-currency">Currency:</label>
-      <select id="entry-currency">
-        <option value="USD">$ (Dollar)</option>
-        <option value="EUR">€ (Euro)</option>
-        <option value="NGN">₦ (Naira)</option>
-      </select>
-
-      <button id="add-entry-btn">Add Entry</button>
-    </div>
-
-    <div class="balance-container">
-      <div>
-        <h3>Total Income</h3>
-        <p id="total-income">$0.00</p>
-      </div>
-      <div>
-        <h3>Total Expense</h3>
-        <p id="total-expense">$0.00</p>
-      </div>
-      <div>
-        <h3>Total Assets</h3>
-        <p id="total-asset">$0.00</p>
-      </div>
-      <div>
-        <h3>Total Liabilities</h3>
-        <p id="total-liability">$0.00</p>
-      </div>
-    </div>
-
-    <div>
-      <h3>Your Entries</h3>
-      <ul class="entries-list" id="entries-list"></ul>
-    </div>
-
-    <div>
-      <label for="theme-color">Choose Theme Color:</label>
-      <select id="theme-color">
-        <option value="#007bff">Blue</option>
-        <option value="#28a745">Green</option>
-        <option value="#ffc107">Yellow</option>
-        <option value="#dc3545">Red</option>
-        <option value="#17a2b8">Cyan</option>
-      </select>
-    </div>
+  <div class="theme-selector">
+    Theme:
+    <select onchange="changeTheme(this.value)">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="blue">Blue</option>
+    </select>
   </div>
 
+  <div>
+    Currency:
+    <select id="currency">
+      <option value="$">Dollar ($)</option>
+      <option value="€">Euro (€)</option>
+      <option value="₦">Naira (₦)</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <h3>Income</h3>
+    <input type="text" id="incomeName" placeholder="Source" />
+    <input type="number" id="incomeAmount" placeholder="Amount" />
+    <button onclick="addItem('income')">Add</button>
+    <div class="list" id="incomeList"></div>
+  </div>
+
+  <div class="section">
+    <h3>Expenses</h3>
+    <input type="text" id="expenseName" placeholder="Item" />
+    <input type="number" id="expenseAmount" placeholder="Amount" />
+    <button onclick="addItem('expense')">Add</button>
+    <div class="list" id="expenseList"></div>
+  </div>
+
+  <div class="section">
+    <h3>Assets</h3>
+    <input type="text" id="assetName" placeholder="Asset" />
+    <input type="number" id="assetAmount" placeholder="Value" />
+    <button onclick="addItem('asset')">Add</button>
+    <div class="list" id="assetList"></div>
+  </div>
+
+  <div class="section">
+    <h3>Liabilities</h3>
+    <input type="text" id="liabilityName" placeholder="Liability" />
+    <input type="number" id="liabilityAmount" placeholder="Value" />
+    <button onclick="addItem('liability')">Add</button>
+    <div class="list" id="liabilityList"></div>
+  </div>
+
+  <div class="balance" id="balanceDisplay">Net Balance: 0</div>
+
+  <button onclick="saveData()">Save</button>
+  <button onclick="exportData()">Export Balance Sheet</button>
+
+  <div class="footer">Made with love by you</div>
+
   <script>
-    const addEntryBtn = document.getElementById('add-entry-btn');
-    const entryType = document.getElementById('entry-type');
-    const entryDescription = document.getElementById('entry-description');
-    const entryAmount = document.getElementById('entry-amount');
-    const entryCurrency = document.getElementById('entry-currency');
-    const entriesList = document.getElementById('entries-list');
-    const totalIncomeDisplay = document.getElementById('total-income');
-    const totalExpenseDisplay = document.getElementById('total-expense');
-    const totalAssetDisplay = document.getElementById('total-asset');
-    const totalLiabilityDisplay = document.getElementById('total-liability');
-    const themeColorSelect = document.getElementById('theme-color');
+    let incomeList = [];
+    let expenseList = [];
+    let assetList = [];
+    let liabilityList = [];
 
-    let entries = [];
+    const currencySelector = document.getElementById("currency");
 
-    addEntryBtn.addEventListener('click', () => {
-      const type = entryType.value;
-      const description = entryDescription.value;
-      const amount = parseFloat(entryAmount.value);
-      const currency = entryCurrency.value;
+    function addItem(type) {
+      const name = document.getElementById(type + "Name").value;
+      const amount = parseFloat(document.getElementById(type + "Amount").value);
 
-      if (description && amount > 0) {
-        const entry = { type, description, amount, currency };
-        entries.push(entry);
-        updateEntriesList();
-        updateBalanceSheet();
+      if (!name || isNaN(amount)) return;
+
+      const item = { name, amount };
+      if (type === "income") incomeList.push(item);
+      if (type === "expense") expenseList.push(item);
+      if (type === "asset") assetList.push(item);
+      if (type === "liability") liabilityList.push(item);
+
+      renderList(type);
+      updateBalance();
+    }
+
+    function renderList(type) {
+      const container = document.getElementById(type + "List");
+      let list = [];
+      if (type === "income") list = incomeList;
+      if (type === "expense") list = expenseList;
+      if (type === "asset") list = assetList;
+      if (type === "liability") list = liabilityList;
+
+      container.innerHTML = "";
+      list.forEach((item, index) => {
+        container.innerHTML += `
+          <div>
+            ${item.name}: ${item.amount} ${currencySelector.value}
+            <button class="remove-btn" onclick="removeItem('${type}', ${index})">x</button>
+          </div>
+        `;
+      });
+    }
+
+    function removeItem(type, index) {
+      if (type === "income") incomeList.splice(index, 1);
+      if (type === "expense") expenseList.splice(index, 1);
+      if (type === "asset") assetList.splice(index, 1);
+      if (type === "liability") liabilityList.splice(index, 1);
+
+      renderList(type);
+      updateBalance();
+    }
+
+    function calculateNetBalance() {
+      const incomeTotal = incomeList.reduce((sum, item) => sum + item.amount, 0);
+      const expenseTotal = expenseList.reduce((sum, item) => sum + item.amount, 0);
+      const assetTotal = assetList.reduce((sum, item) => sum + item.amount, 0);
+      const liabilityTotal = liabilityList.reduce((sum, item) => sum + item.amount, 0);
+      return incomeTotal - expenseTotal + assetTotal - liabilityTotal;
+    }
+
+    function updateBalance() {
+      const net = calculateNetBalance();
+      document.getElementById("balanceDisplay").innerText =
+        `Net Balance: ${net} ${currencySelector.value}`;
+    }
+
+    function saveData() {
+      const data = {
+        incomeList,
+        expenseList,
+        assetList,
+        liabilityList,
+        currency: currencySelector.value
+      };
+      localStorage.setItem("balanceApp", JSON.stringify(data));
+      alert("Saved!");
+    }
+
+    function loadData() {
+      const data = JSON.parse(localStorage.getItem("balanceApp"));
+      if (!data) return;
+      incomeList = data.incomeList || [];
+      expenseList = data.expenseList || [];
+      assetList = data.assetList || [];
+      liabilityList = data.liabilityList || [];
+      currencySelector.value = data.currency || "$";
+      ["income", "expense", "asset", "liability"].forEach(renderList);
+      updateBalance();
+    }
+
+    function exportData() {
+      let content = "=== Balance Sheet ===\n\n";
+
+      content += "Income:\n";
+      incomeList.forEach(item => {
+        content += `- ${item.name}: ${item.amount} ${currencySelector.value}\n`;
+      });
+
+      content += "\nExpenses:\n";
+      expenseList.forEach(item => {
+        content += `- ${item.name}: ${item.amount} ${currencySelector.value}\n`;
+      });
+
+      content += "\nAssets:\n";
+      assetList.forEach(item => {
+        content += `- ${item.name}: ${item.amount} ${currencySelector.value}\n`;
+      });
+
+      content += "\nLiabilities:\n";
+      liabilityList.forEach(item => {
+        content += `- ${item.name}: ${item.amount} ${currencySelector.value}\n`;
+      });
+
+      content += `\nNet Balance: ${calculateNetBalance()} ${currencySelector.value}`;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "balance_sheet.txt";
+      link.click();
+    }
+
+    function changeTheme(theme) {
+      const root = document.documentElement;
+      if (theme === "dark") {
+        root.style.setProperty("--background", "#1e1e1e");
+        root.style.setProperty("--text", "#ffffff");
+        root.style.setProperty("--accent", "#4caf50");
+      } else if (theme === "blue") {
+        root.style.setProperty("--background", "#e0f0ff");
+        root.style.setProperty("--text", "#003366");
+        root.style.setProperty("--accent", "#007bff");
+      } else {
+        root.style.setProperty("--background", "#f9f9f9");
+        root.style.setProperty("--text", "#222");
+        root.style.setProperty("--accent", "#007bff");
       }
-    });
-
-    function updateEntriesList() {
-      entriesList.innerHTML = '';
-      entries.forEach((entry, index) => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `${entry.type.toUpperCase()} - ${entry.description}: ${entry.currency}${entry.amount.toFixed(2)} <button onclick="removeEntry(${index})">Delete</button>`;
-        entriesList.appendChild(listItem);
-      });
     }
 
-    function updateBalanceSheet() {
-      let income = 0, expense = 0, asset = 0, liability = 0;
-
-      entries.forEach(entry => {
-        if (entry.type === 'income') {
-          income += entry.amount;
-        } else if (entry.type === 'expense') {
-          expense += entry.amount;
-        } else if (entry.type === 'asset') {
-          asset += entry.amount;
-        } else if (entry.type === 'liability') {
-          liability += entry.amount;
-        }
-      });
-
-      totalIncomeDisplay.textContent = `${entryCurrency.value}${income.toFixed(2)}`;
-      totalExpenseDisplay.textContent = `${entryCurrency.value}${expense.toFixed(2)}`;
-      totalAssetDisplay.textContent = `${entryCurrency.value}${asset.toFixed(2)}`;
-      totalLiabilityDisplay.textContent = `${entryCurrency.value}${liability.toFixed(2)}`;
-    }
-
-    function removeEntry(index) {
-      entries.splice(index, 1);
-      updateEntriesList();
-      updateBalanceSheet();
-    }
-
-    themeColorSelect.addEventListener('change', (e) => {
-      document.body.style.backgroundColor = e.target.value;
-      document.querySelector('.container').style.backgroundColor = e.target.value;
-    });
+    window.onload = loadData;
   </script>
 </body>
 </html>
