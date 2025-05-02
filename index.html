@@ -6,76 +6,139 @@
   <title>Balance</title>
   <style>
     :root {
-      --bg: #f4f4f4;
-      --text: #222;
+      --bg: #ffffff;
+      --text: #333;
+      --card: #f9f9f9;
       --accent: #007bff;
     }
 
     [data-theme="dark"] {
-      --bg: #121212;
-      --text: #f4f4f4;
+      --bg: #1e1e1e;
+      --text: #f1f1f1;
+      --card: #2c2c2c;
       --accent: #1e90ff;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 20px;
+      transition: background 0.3s, color 0.3s;
     }
 
     .container {
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
+      padding: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .login-screen, .dashboard {
+      transition: opacity 0.5s ease;
+    }
+
+    .login-screen {
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: var(--bg);
+    }
+
+    .login-screen input {
+      padding: 12px;
+      margin: 10px 0;
+      width: 250px;
+      font-size: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
     }
 
     input, select, button {
       padding: 10px;
       margin: 5px 0;
       width: 100%;
-      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
 
-    .section {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 15px;
-    }
-
-    .theme-toggle {
-      float: right;
-      margin-top: -40px;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    .btn {
+    button {
       background-color: var(--accent);
       color: white;
       border: none;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
-    .btn:hover {
-      opacity: 0.9;
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 5px 0;
+      cursor: pointer;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .theme-toggle {
+      background: none;
+      color: var(--text);
+      border: 1px solid var(--text);
+      padding: 6px 10px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body data-theme="light">
-  <div class="container">
-    <h1>Balance</h1>
-    <button class="theme-toggle btn" onclick="toggleTheme()">Toggle Theme</button>
+  <!-- Login Page -->
+  <div class="login-screen" id="loginScreen">
+    <h1>Welcome to Balance</h1>
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button onclick="login()">Enter</button>
+  </div>
 
-    <div class="section" id="auth-section">
-      <h2>Login / Create Account (Optional)</h2>
-      <input type="text" id="username" placeholder="Enter your name" />
-      <button class="btn" onclick="login()">Start</button>
+  <!-- Main Dashboard -->
+  <div class="container hidden" id="dashboard">
+    <div class="header">
+      <h1 id="welcomeText"></h1>
+      <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Currency</h2>
       <select id="currency">
         <option value="₦">₦ - Naira</option>
@@ -84,64 +147,61 @@
       </select>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Income</h2>
       <input type="text" id="incomeName" placeholder="Source" />
       <input type="number" id="incomeAmount" placeholder="Amount" />
-      <button class="btn" onclick="addEntry('income')">Add Income</button>
+      <button onclick="addEntry('income')">Add Income</button>
       <ul id="incomeList"></ul>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Expenses</h2>
       <input type="text" id="expenseName" placeholder="Item" />
       <input type="number" id="expenseAmount" placeholder="Amount" />
-      <button class="btn" onclick="addEntry('expense')">Add Expense</button>
+      <button onclick="addEntry('expense')">Add Expense</button>
       <ul id="expenseList"></ul>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Assets</h2>
       <input type="text" id="assetName" placeholder="Asset" />
       <input type="number" id="assetAmount" placeholder="Amount" />
-      <button class="btn" onclick="addEntry('asset')">Add Asset</button>
+      <button onclick="addEntry('asset')">Add Asset</button>
       <ul id="assetList"></ul>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Liabilities</h2>
       <input type="text" id="liabilityName" placeholder="Liability" />
       <input type="number" id="liabilityAmount" placeholder="Amount" />
-      <button class="btn" onclick="addEntry('liability')">Add Liability</button>
+      <button onclick="addEntry('liability')">Add Liability</button>
       <ul id="liabilityList"></ul>
     </div>
 
-    <div class="section">
+    <div class="card">
       <h2>Balance Sheet</h2>
       <p id="summary"></p>
-      <button class="btn" onclick="calculateBalance()">Update Balance</button>
-      <button class="btn" onclick="exportData()">Export Data</button>
+      <button onclick="calculateBalance()">Update Balance</button>
+      <button onclick="exportData()">Export Data</button>
     </div>
   </div>
 
   <script>
-    const entries = {
-      income: [],
-      expense: [],
-      asset: [],
-      liability: []
-    };
+    const entries = { income: [], expense: [], asset: [], liability: [] };
 
     function login() {
-      const name = document.getElementById('username').value;
+      const name = document.getElementById('username').value.trim();
       if (name) {
         localStorage.setItem('balanceUser', name);
-        document.getElementById('auth-section').innerHTML = `<h2>Welcome, ${name}!</h2>`;
+        document.getElementById('welcomeText').innerText = `Hello, ${name}`;
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
       }
     }
 
     function addEntry(type) {
-      const name = document.getElementById(`${type}Name`).value;
+      const name = document.getElementById(`${type}Name`).value.trim();
       const amount = parseFloat(document.getElementById(`${type}Amount`).value);
       if (!name || isNaN(amount)) return;
 
@@ -155,11 +215,11 @@
     function updateList(type) {
       const ul = document.getElementById(`${type}List`);
       ul.innerHTML = '';
-      entries[type].forEach((item, index) => {
+      entries[type].forEach((item, i) => {
         const li = document.createElement('li');
         li.textContent = `${item.name}: ${getCurrency()}${item.amount}`;
         li.onclick = () => {
-          entries[type].splice(index, 1);
+          entries[type].splice(i, 1);
           updateList(type);
           calculateBalance();
         };
@@ -168,7 +228,7 @@
     }
 
     function getCurrency() {
-      return document.getElementById('currency').value || '₦';
+      return document.getElementById('currency').value;
     }
 
     function calculateBalance() {
@@ -189,11 +249,6 @@
       `;
     }
 
-    function toggleTheme() {
-      const currentTheme = document.body.getAttribute('data-theme');
-      document.body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
-    }
-
     function exportData() {
       const data = {
         user: localStorage.getItem('balanceUser'),
@@ -202,18 +257,23 @@
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-
       const a = document.createElement('a');
       a.href = url;
       a.download = 'balance-data.json';
       a.click();
     }
 
-    // Load user if exists
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme');
+      document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
     window.onload = () => {
       const user = localStorage.getItem('balanceUser');
       if (user) {
-        document.getElementById('auth-section').innerHTML = `<h2>Welcome back, ${user}!</h2>`;
+        document.getElementById('welcomeText').innerText = `Welcome back, ${user}`;
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
       }
     };
   </script>
