@@ -3,190 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamSpace: Personal Visualization & Imagination Builder</title>
+    <title>SkillSwap - Skill Exchange Platform</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
             margin: 0;
             padding: 0;
-            background-color: #f0f4f8;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
         h1 {
-            margin-top: 20px;
-            color: #333;
+            color: #4CAF50;
         }
 
-        .canvas-container {
-            position: relative;
-            width: 80vw;
-            height: 60vh;
-            background-color: #fff;
-            border: 2px dashed #ccc;
+        .profile-form, .match-list, .contract-form {
+            background: white;
+            padding: 20px;
             border-radius: 10px;
-            overflow: hidden;
-            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 10px;
         }
 
-        .canvas-element {
-            position: absolute;
-            cursor: pointer;
-            transition: transform 0.3s ease;
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
-        .controls {
+        .match-item {
             display: flex;
-            margin-top: 20px;
-            gap: 10px;
-            justify-content: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
         }
 
-        .button {
-            padding: 10px 20px;
+        button {
             background-color: #4CAF50;
             color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
         }
 
-        .button:hover {
+        button:hover {
             background-color: #45a049;
-        }
-
-        .footer {
-            margin-top: 30px;
-            color: #777;
         }
     </style>
 </head>
 <body>
-    <h1>DreamSpace: Personal Visualization & Imagination Builder</h1>
 
-    <div class="canvas-container" id="canvas"></div>
+<h1>SkillSwap - Trade Your Skills</h1>
 
-    <div class="controls">
-        <button class="button" onclick="addRandomShape()">Add Random Shape</button>
-        <button class="button" onclick="addRandomText()">Add Random Text</button>
-        <button class="button" onclick="clearCanvas()">Clear Canvas</button>
-    </div>
+<!-- User Profile Form -->
+<div class="profile-form">
+    <h3>Create Your Profile</h3>
+    <input type="text" id="name" placeholder="Your Name">
+    <input type="text" id="offering" placeholder="Skill you offer (e.g., Graphic Design)">
+    <input type="text" id="seeking" placeholder="Skill you seek (e.g., Web Development)">
+    <button onclick="createProfile()">Create Profile</button>
+</div>
 
-    <div class="footer">
-        <p>Save your creative ideas to your local browser storage. Refresh the page to reset.</p>
-    </div>
+<!-- List of Matches -->
+<div class="match-list" id="matchList"></div>
 
-    <script>
-        // Get canvas element
-        const canvas = document.getElementById('canvas');
+<!-- Skill Swap Contract -->
+<div class="contract-form" id="contractForm" style="display: none;">
+    <h3>Swap Contract</h3>
+    <p>Skill Offer: <span id="offerSkill"></span></p>
+    <p>Skill Sought: <span id="seekSkill"></span></p>
+    <button onclick="completeSwap()">Complete Swap</button>
+</div>
 
-        // Helper function to get a random color
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
+<script>
+    // Initialize users list
+    let profiles = JSON.parse(localStorage.getItem('profiles')) || [];
+
+    // Create Profile Function
+    function createProfile() {
+        const name = document.getElementById('name').value;
+        const offering = document.getElementById('offering').value;
+        const seeking = document.getElementById('seeking').value;
+
+        if (name && offering && seeking) {
+            const profile = { name, offering, seeking };
+            profiles.push(profile);
+            localStorage.setItem('profiles', JSON.stringify(profiles));
+            document.getElementById('name').value = '';
+            document.getElementById('offering').value = '';
+            document.getElementById('seeking').value = '';
+            renderMatches();
         }
+    }
 
-        // Add random shape to canvas
-        function addRandomShape() {
-            const shapes = ['circle', 'square'];
-            const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
-            const size = Math.floor(Math.random() * 100) + 50;
-            const x = Math.floor(Math.random() * (canvas.offsetWidth - size));
-            const y = Math.floor(Math.random() * (canvas.offsetHeight - size));
+    // Render List of Matching Users
+    function renderMatches() {
+        const matchList = document.getElementById('matchList');
+        matchList.innerHTML = '';
 
-            const shape = document.createElement('div');
-            shape.classList.add('canvas-element');
-            shape.style.width = `${size}px`;
-            shape.style.height = `${size}px`;
-            shape.style.backgroundColor = getRandomColor();
-            shape.style.left = `${x}px`;
-            shape.style.top = `${y}px`;
+        profiles.forEach((profile, index) => {
+            const matchItem = document.createElement('div');
+            matchItem.classList.add('match-item');
+            matchItem.innerHTML = `
+                <div>${profile.name} offers: ${profile.offering}, seeks: ${profile.seeking}</div>
+                <button onclick="initiateSwap(${index})">Start Swap</button>
+            `;
+            matchList.appendChild(matchItem);
+        });
+    }
 
-            if (shapeType === 'circle') {
-                shape.style.borderRadius = '50%';
-            }
+    // Initiate a Skill Swap
+    function initiateSwap(index) {
+        const profile = profiles[index];
+        document.getElementById('offerSkill').innerText = profile.offering;
+        document.getElementById('seekSkill').innerText = profile.seeking;
+        document.getElementById('contractForm').style.display = 'block';
+    }
 
-            canvas.appendChild(shape);
-            saveCanvasState();
-        }
+    // Complete the Swap
+    function completeSwap() {
+        alert('Swap Completed!');
+        document.getElementById('contractForm').style.display = 'none';
+    }
 
-        // Add random text to canvas
-        function addRandomText() {
-            const texts = ['Dream', 'Hope', 'Imagination', 'Believe', 'Create', 'Inspire'];
-            const randomText = texts[Math.floor(Math.random() * texts.length)];
-            const x = Math.floor(Math.random() * (canvas.offsetWidth - 150));
-            const y = Math.floor(Math.random() * (canvas.offsetHeight - 50));
+    // Initial render
+    renderMatches();
+</script>
 
-            const textElement = document.createElement('div');
-            textElement.classList.add('canvas-element');
-            textElement.innerText = randomText;
-            textElement.style.fontSize = '20px';
-            textElement.style.color = getRandomColor();
-            textElement.style.left = `${x}px`;
-            textElement.style.top = `${y}px`;
-
-            canvas.appendChild(textElement);
-            saveCanvasState();
-        }
-
-        // Clear the canvas
-        function clearCanvas() {
-            canvas.innerHTML = '';
-            saveCanvasState();
-        }
-
-        // Save the current canvas state to localStorage
-        function saveCanvasState() {
-            const elements = [];
-            document.querySelectorAll('.canvas-element').forEach((element) => {
-                elements.push({
-                    type: element.innerText ? 'text' : 'shape',
-                    content: element.innerText || null,
-                    x: element.offsetLeft,
-                    y: element.offsetTop,
-                    color: element.style.backgroundColor || element.style.color,
-                    size: element.offsetWidth
-                });
-            });
-            localStorage.setItem('dreamSpaceState', JSON.stringify(elements));
-        }
-
-        // Load the saved canvas state from localStorage
-        function loadCanvasState() {
-            const savedState = JSON.parse(localStorage.getItem('dreamSpaceState'));
-            if (savedState) {
-                savedState.forEach((item) => {
-                    if (item.type === 'shape') {
-                        const shape = document.createElement('div');
-                        shape.classList.add('canvas-element');
-                        shape.style.width = `${item.size}px`;
-                        shape.style.height = `${item.size}px`;
-                        shape.style.backgroundColor = item.color;
-                        shape.style.left = `${item.x}px`;
-                        shape.style.top = `${item.y}px`;
-                        canvas.appendChild(shape);
-                    } else if (item.type === 'text') {
-                        const textElement = document.createElement('div');
-                        textElement.classList.add('canvas-element');
-                        textElement.innerText = item.content;
-                        textElement.style.fontSize = '20px';
-                        textElement.style.color = item.color;
-                        textElement.style.left = `${item.x}px`;
-                        textElement.style.top = `${item.y}px`;
-                        canvas.appendChild(textElement);
-                    }
-                });
-            }
-        }
-
-        // Initialize the app
-        loadCanvasState();
-    </script>
 </body>
 </html>
