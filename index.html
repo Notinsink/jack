@@ -3,236 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balance App</title>
+    <title>DreamSpace: Personal Visualization & Imagination Builder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            transition: background-color 0.5s ease;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
-            text-align: center;
+            margin-top: 20px;
+            color: #333;
         }
 
-        #login-form, #signup-form, #dashboard {
-            display: none;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
+        .canvas-container {
+            position: relative;
+            width: 80vw;
+            height: 60vh;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
         }
 
-        .active {
-            display: block;
+        .canvas-element {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+        .controls {
+            display: flex;
+            margin-top: 20px;
+            gap: 10px;
+            justify-content: center;
         }
 
-        button {
+        .button {
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
-            font-size: 16px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        button:active {
-            transform: scale(0.98);
+        .button:hover {
+            background-color: #45a049;
         }
 
-        #balance-sheet-container {
-            display: none;
-        }
-
-        .color-theme-selector {
-            margin-bottom: 20px;
-        }
-
-        #theme-color {
-            margin: 10px 0;
+        .footer {
+            margin-top: 30px;
+            color: #777;
         }
     </style>
 </head>
 <body>
+    <h1>DreamSpace: Personal Visualization & Imagination Builder</h1>
 
-    <!-- Login Page -->
-    <div id="login-form" class="active">
-        <h1>Login</h1>
-        <input type="text" id="login-username" placeholder="Username" required>
-        <input type="password" id="login-password" placeholder="Password" required>
-        <button onclick="login()">Login</button>
-        <p>Don't have an account? <a href="javascript:void(0);" onclick="showSignup()">Sign up</a></p>
+    <div class="canvas-container" id="canvas"></div>
+
+    <div class="controls">
+        <button class="button" onclick="addRandomShape()">Add Random Shape</button>
+        <button class="button" onclick="addRandomText()">Add Random Text</button>
+        <button class="button" onclick="clearCanvas()">Clear Canvas</button>
     </div>
 
-    <!-- Signup Page -->
-    <div id="signup-form">
-        <h1>Sign Up</h1>
-        <input type="text" id="signup-username" placeholder="Username" required>
-        <input type="email" id="signup-email" placeholder="Email" required>
-        <input type="password" id="signup-password" placeholder="Password" required>
-        <button onclick="signup()">Sign Up</button>
-        <p>Already have an account? <a href="javascript:void(0);" onclick="showLogin()">Login</a></p>
-    </div>
-
-    <!-- Dashboard Page -->
-    <div id="dashboard">
-        <h1>Welcome <span id="username"></span></h1>
-        <button onclick="logout()">Logout</button>
-        <div class="color-theme-selector">
-            <label for="theme-color">Change Theme Color:</label>
-            <select id="theme-color" onchange="changeThemeColor()">
-                <option value="#f4f4f9">Default</option>
-                <option value="#4CAF50">Green</option>
-                <option value="#2196F3">Blue</option>
-                <option value="#FF5722">Orange</option>
-            </select>
-        </div>
-
-        <div id="balance-sheet-container">
-            <h2>Balance Sheet</h2>
-            <div>
-                <label>Income:</label>
-                <input type="number" id="income" placeholder="Enter income" required>
-            </div>
-            <div>
-                <label>Expenses:</label>
-                <input type="number" id="expenses" placeholder="Enter expenses" required>
-            </div>
-            <div>
-                <label>Assets:</label>
-                <input type="number" id="assets" placeholder="Enter assets" required>
-            </div>
-            <div>
-                <label>Liabilities:</label>
-                <input type="number" id="liabilities" placeholder="Enter liabilities" required>
-            </div>
-            <button onclick="generateBalanceSheet()">Generate Balance Sheet</button>
-            <button onclick="exportToPDF()">Export as PDF</button>
-            <h3>Net Worth: <span id="net-worth">0</span></h3>
-        </div>
+    <div class="footer">
+        <p>Save your creative ideas to your local browser storage. Refresh the page to reset.</p>
     </div>
 
     <script>
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        let currentUser = null;
+        // Get canvas element
+        const canvas = document.getElementById('canvas');
 
-        function showLogin() {
-            document.getElementById("login-form").classList.add("active");
-            document.getElementById("signup-form").classList.remove("active");
-            document.getElementById("dashboard").classList.remove("active");
+        // Helper function to get a random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
         }
 
-        function showSignup() {
-            document.getElementById("signup-form").classList.add("active");
-            document.getElementById("login-form").classList.remove("active");
-            document.getElementById("dashboard").classList.remove("active");
+        // Add random shape to canvas
+        function addRandomShape() {
+            const shapes = ['circle', 'square'];
+            const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+            const size = Math.floor(Math.random() * 100) + 50;
+            const x = Math.floor(Math.random() * (canvas.offsetWidth - size));
+            const y = Math.floor(Math.random() * (canvas.offsetHeight - size));
+
+            const shape = document.createElement('div');
+            shape.classList.add('canvas-element');
+            shape.style.width = `${size}px`;
+            shape.style.height = `${size}px`;
+            shape.style.backgroundColor = getRandomColor();
+            shape.style.left = `${x}px`;
+            shape.style.top = `${y}px`;
+
+            if (shapeType === 'circle') {
+                shape.style.borderRadius = '50%';
+            }
+
+            canvas.appendChild(shape);
+            saveCanvasState();
         }
 
-        function showDashboard() {
-            document.getElementById("dashboard").classList.add("active");
-            document.getElementById("login-form").classList.remove("active");
-            document.getElementById("signup-form").classList.remove("active");
-            document.getElementById("username").innerText = currentUser.username;
-            document.getElementById("balance-sheet-container").style.display = 'block';
+        // Add random text to canvas
+        function addRandomText() {
+            const texts = ['Dream', 'Hope', 'Imagination', 'Believe', 'Create', 'Inspire'];
+            const randomText = texts[Math.floor(Math.random() * texts.length)];
+            const x = Math.floor(Math.random() * (canvas.offsetWidth - 150));
+            const y = Math.floor(Math.random() * (canvas.offsetHeight - 50));
+
+            const textElement = document.createElement('div');
+            textElement.classList.add('canvas-element');
+            textElement.innerText = randomText;
+            textElement.style.fontSize = '20px';
+            textElement.style.color = getRandomColor();
+            textElement.style.left = `${x}px`;
+            textElement.style.top = `${y}px`;
+
+            canvas.appendChild(textElement);
+            saveCanvasState();
         }
 
-        function login() {
-            const username = document.getElementById("login-username").value;
-            const password = document.getElementById("login-password").value;
+        // Clear the canvas
+        function clearCanvas() {
+            canvas.innerHTML = '';
+            saveCanvasState();
+        }
 
-            const user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                currentUser = user;
-                localStorage.setItem("currentUser", JSON.stringify(user));
-                showDashboard();
-            } else {
-                alert("Invalid login credentials");
+        // Save the current canvas state to localStorage
+        function saveCanvasState() {
+            const elements = [];
+            document.querySelectorAll('.canvas-element').forEach((element) => {
+                elements.push({
+                    type: element.innerText ? 'text' : 'shape',
+                    content: element.innerText || null,
+                    x: element.offsetLeft,
+                    y: element.offsetTop,
+                    color: element.style.backgroundColor || element.style.color,
+                    size: element.offsetWidth
+                });
+            });
+            localStorage.setItem('dreamSpaceState', JSON.stringify(elements));
+        }
+
+        // Load the saved canvas state from localStorage
+        function loadCanvasState() {
+            const savedState = JSON.parse(localStorage.getItem('dreamSpaceState'));
+            if (savedState) {
+                savedState.forEach((item) => {
+                    if (item.type === 'shape') {
+                        const shape = document.createElement('div');
+                        shape.classList.add('canvas-element');
+                        shape.style.width = `${item.size}px`;
+                        shape.style.height = `${item.size}px`;
+                        shape.style.backgroundColor = item.color;
+                        shape.style.left = `${item.x}px`;
+                        shape.style.top = `${item.y}px`;
+                        canvas.appendChild(shape);
+                    } else if (item.type === 'text') {
+                        const textElement = document.createElement('div');
+                        textElement.classList.add('canvas-element');
+                        textElement.innerText = item.content;
+                        textElement.style.fontSize = '20px';
+                        textElement.style.color = item.color;
+                        textElement.style.left = `${item.x}px`;
+                        textElement.style.top = `${item.y}px`;
+                        canvas.appendChild(textElement);
+                    }
+                });
             }
         }
 
-        function signup() {
-            const username = document.getElementById("signup-username").value;
-            const email = document.getElementById("signup-email").value;
-            const password = document.getElementById("signup-password").value;
-
-            if (users.find(u => u.username === username)) {
-                alert("Username already exists");
-                return;
-            }
-
-            const newUser = { username, email, password };
-            users.push(newUser);
-            localStorage.setItem("users", JSON.stringify(users));
-            currentUser = newUser;
-            localStorage.setItem("currentUser", JSON.stringify(currentUser));
-            showDashboard();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem("currentUser");
-            showLogin();
-        }
-
-        function changeThemeColor() {
-            const selectedColor = document.getElementById("theme-color").value;
-            document.body.style.backgroundColor = selectedColor;
-        }
-
-        function generateBalanceSheet() {
-            const income = parseFloat(document.getElementById("income").value) || 0;
-            const expenses = parseFloat(document.getElementById("expenses").value) || 0;
-            const assets = parseFloat(document.getElementById("assets").value) || 0;
-            const liabilities = parseFloat(document.getElementById("liabilities").value) || 0;
-            const netWorth = income - expenses + assets - liabilities;
-            
-            document.getElementById("net-worth").innerText = netWorth.toFixed(2);
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text('Balance Sheet', 10, 10);
-
-            const income = document.getElementById("income").value;
-            const expenses = document.getElementById("expenses").value;
-            const assets = document.getElementById("assets").value;
-            const liabilities = document.getElementById("liabilities").value;
-            const netWorth = document.getElementById("net-worth").innerText;
-
-            doc.text(`Income: $${income}`, 10, 20);
-            doc.text(`Expenses: $${expenses}`, 10, 30);
-            doc.text(`Assets: $${assets}`, 10, 40);
-            doc.text(`Liabilities: $${liabilities}`, 10, 50);
-            doc.text(`Net Worth: $${netWorth}`, 10, 60);
-
-            doc.save('balance-sheet.pdf');
-        }
-
-        // On page load, check if there's a current user
-        window.onload = function() {
-            const storedUser = JSON.parse(localStorage.getItem("currentUser"));
-            if (storedUser) {
-                currentUser = storedUser;
-                showDashboard();
-            } else {
-                showLogin();
-            }
-        }
+        // Initialize the app
+        loadCanvasState();
     </script>
-
-    <!-- Include jsPDF library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 </body>
 </html>
